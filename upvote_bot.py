@@ -19,7 +19,6 @@ logger.addHandler(fh)
 
 # Beem
 steem = Steem()
-steem.wallet.unlock("123456")
 
 # Spreadsheet variables
 scope = ["https://spreadsheets.google.com/feeds",
