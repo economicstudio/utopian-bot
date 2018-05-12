@@ -19,6 +19,7 @@ logger.addHandler(fh)
 
 # Beem
 steem = Steem()
+ACCOUNT = "utopian-io"
 
 # Spreadsheet variables
 scope = ["https://spreadsheets.google.com/feeds",
@@ -26,7 +27,7 @@ scope = ["https://spreadsheets.google.com/feeds",
 credentials = ServiceAccountCredentials.from_json_keyfile_name(
     "/root/utopian-bot/client_secret.json", scope)
 client = gspread.authorize(credentials)
-sheet = client.open("Copy of Utopian Reviews")
+sheet = client.open("Utopian Reviews")
 today = date.today()
 offset = (today.weekday() - 3) % 7
 this_week = today - timedelta(days=offset)
@@ -96,10 +97,10 @@ def bot_comment(post, category, account, staff_picked=False):
              "ote?witness=utopian-io&approve=1'>Vote for Utopian Witness!</a>")
 
     logger.info(f"Commenting on {post.authorperm} - {body}")
-    #try:
-    #    post.reply("Cool post!", author="amosbastian")
-    #except Exception as comment_error:
-    #    logger.error(comment_error)
+    try:
+        post.reply(body, author=ACCOUNT)
+    except Exception as comment_error:
+        logger.error(comment_error)
 
 
 def vote_update(row, row_index, staff_picked=False):
@@ -109,7 +110,7 @@ def vote_update(row, row_index, staff_picked=False):
     url = row[2]
     category = row[4]
 
-    account = Account("amosbastian")
+    account = Account(ACCOUNT)
     if staff_picked:
         vote_pct = MAX_VOTE[category]
     else:
@@ -129,7 +130,7 @@ def main():
     """
     If voting power is 99 then it votes on one contribution
     """
-    voting_power = get_current_vp("amosbastian")
+    voting_power = get_current_vp(ACCOUNT)
     rows = reviewed.get_all_values()
 
     # Sort rows by score
