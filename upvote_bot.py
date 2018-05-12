@@ -10,7 +10,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 # Logging
 logger = logging.getLogger("utopian-io")
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler("/home/amos/Documents/utopian-sheet/test.log")
+fh = logging.FileHandler("/root/utopian-bot/bot.log")
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -25,7 +25,7 @@ steem.wallet.unlock("123456")
 scope = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    "/home/amos/Documents/utopian-sheet/client_secret.json", scope)
+    "/root/utopian-bot/client_secret.json", scope)
 client = gspread.authorize(credentials)
 sheet = client.open("Copy of Utopian Reviews")
 today = date.today()
@@ -97,10 +97,10 @@ def bot_comment(post, category, account, staff_picked=False):
              "ote?witness=utopian-io&approve=1'>Vote for Utopian Witness!</a>")
 
     logger.info(f"Commenting on {post.authorperm} - {body}")
-    try:
-        post.reply("Cool post!", author="amosbastian")
-    except Exception as comment_error:
-        logger.error(comment_error)
+    #try:
+    #    post.reply("Cool post!", author="amosbastian")
+    #except Exception as comment_error:
+    #    logger.error(comment_error)
 
 
 def vote_update(row, row_index, staff_picked=False):
