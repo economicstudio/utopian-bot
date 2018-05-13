@@ -134,9 +134,9 @@ def main():
     rows = reviewed.get_all_values()
 
     # Sort rows by score
-    sorted_rows = sorted(rows[1:], key=lambda x: float(x[-1]), reverse=True)
+    sorted_rows = sorted(rows[1:], key=lambda x: float(x[5]), reverse=True)
 
-    if voting_power < 99:
+    if voting_power < 99.86:
         return
 
     # Check if there's a staff picked contribution
