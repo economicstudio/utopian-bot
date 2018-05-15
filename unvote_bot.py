@@ -64,7 +64,7 @@ def update_comment(post):
     """
     body = (f"Hey @{post.author}, your contribution was unvoted because we "
             "found out that it did not follow the "
-            "[Utopian rules](https://utopian.io/rules).\n\n Upvote this "
+            "[Utopian rules](https://join.utopian.io/rules).\n\n Upvote this "
             "comment to help Utopian grow its power and help other Open "
             "Source contributions like this one.\n\n**Want to chat? Join us "
             "on [Discord](https://discord.gg/Pc8HG9x).**")
@@ -79,7 +79,6 @@ def update_comment(post):
             except Exception as error:
                 logger.error(error)
             return
-            
 
 
 def unvote_post(row, previous, current):
