@@ -5,7 +5,7 @@ import os
 import time
 from beem import Steem
 from beem.account import Account
-from beem.comment import Comment
+from beem.comment import Comment, RecentReplies
 from datetime import date, datetime, timedelta
 from dateutil.parser import parse
 from oauth2client.service_account import ServiceAccountCredentials
@@ -49,6 +49,39 @@ previous_reviewed = sheet.worksheet(title_previous)
 current_reviewed = sheet.worksheet(title_current)
 
 
+def get_replies(post):
+    """
+    Gets all replies to the given post.
+    """
+    url = f"{post.category}/{post.authorperm}"
+    return steem.rpc.get_state(url)["content"].keys()
+
+
+def update_comment(post):
+    """
+    Updates the comment left by the bot to reflect that the contribution was
+    unvoted.
+    """
+    body = (f"Hey @{post.author}, your contribution was unvoted because we "
+            "found out that it did not follow the "
+            "[Utopian rules](https://utopian.io/rules).\n\n Upvote this "
+            "comment to help Utopian grow its power and help other Open "
+            "Source contributions like this one.\n\n**Want to chat? Join us "
+            "on [Discord](https://discord.gg/Pc8HG9x).**")
+
+    # Iterate over replies until bot's comment is found
+    for comment in get_replies(post):
+        comment = Comment(comment)
+        if comment.author == ACCOUNT and comment.is_comment():
+            try:
+                logger.info(f"Updating comment {comment.authorperm}")
+                comment.edit(body, replace=True)
+            except Exception as error:
+                logger.error(error)
+            return
+            
+
+
 def unvote_post(row, previous, current):
     """
     Unvotes the given post and updates the spreadsheet to reflect this.
@@ -59,7 +92,6 @@ def unvote_post(row, previous, current):
 
     # Check if actually voted on post
     votes = [vote["voter"] for vote in post.json()["active_votes"]]
-    print(votes)
     if ACCOUNT not in votes:
         logger.info(f"Never voted on {url} in the first place!")
         return
@@ -69,6 +101,8 @@ def unvote_post(row, previous, current):
         logger.info(f"Unvoting {url}")
         post.vote(0, account=account)
         time.sleep(3)
+        # Edit comment
+        update_comment(post)
     except Exception as error:
         logger.error(error)
 
