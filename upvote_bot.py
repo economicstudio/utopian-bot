@@ -1,16 +1,20 @@
-from datetime import date, datetime, timedelta
-import logging
-import gspread
 from beem import Steem
 from beem.account import Account
 from beem.comment import Comment
+from datetime import date, datetime, timedelta
 from dateutil.parser import parse
 from oauth2client.service_account import ServiceAccountCredentials
+import gspread
+import logging
+import os
+
+# Get path of current folder
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 # Logging
 logger = logging.getLogger("utopian-io")
 logger.setLevel(logging.INFO)
-fh = logging.FileHandler("/root/utopian-bot/bot.log")
+fh = logging.FileHandler(f"{DIR_PATH}/bot.log")
 fh.setLevel(logging.DEBUG)
 formatter = logging.Formatter(
     "%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -25,9 +29,11 @@ ACCOUNT = "utopian-io"
 scope = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    "/root/utopian-bot/client_secret.json", scope)
+    f"{DIR_PATH}/client_secret.json", scope)
 client = gspread.authorize(credentials)
 sheet = client.open("Utopian Reviews")
+
+# Get date of current and next Thursday
 today = date.today()
 offset = (today.weekday() - 3) % 7
 this_week = today - timedelta(days=offset)
@@ -72,6 +78,7 @@ def bot_comment(post, category, account, staff_picked=False):
     Comments on the given post. Content changes depending on the category and
     if the post was staff picked or not.
     """
+    # Change text depending on if contribution is task request or not
     if "task" in category:
         contribution = "task request"
     else:
@@ -80,6 +87,7 @@ def bot_comment(post, category, account, staff_picked=False):
     body = (f"Hey @{post.author}\n"
             "**Thanks for contributing on Utopian**.\n")
 
+    # If staff picked add text
     if staff_picked:
         body += ("Congratulations! Your contribution was Staff Picked to "
                  f"receive a maximum vote for the {category} category on "
@@ -103,6 +111,15 @@ def bot_comment(post, category, account, staff_picked=False):
         logger.error(comment_error)
 
 
+def valid_age(post):
+    """
+    Checks if post is within last twelve hours before payout.
+    """
+    if post.time_elapsed() > timedelta(hours=156):
+        return False
+    return True
+
+
 def vote_update(row, row_index, staff_picked=False):
     """
     Upvotes the highest priority contribution and updates the spreadsheet.
@@ -111,6 +128,7 @@ def vote_update(row, row_index, staff_picked=False):
     category = row[4]
 
     account = Account(ACCOUNT)
+    # Check if post was staff picked
     if staff_picked:
         vote_pct = MAX_VOTE[category]
     else:
@@ -119,16 +137,21 @@ def vote_update(row, row_index, staff_picked=False):
     try:
         post = Comment(url, steem_instance=steem)
         logger.info(f"Voting on {post.authorperm} with {vote_pct}%")
-        post.vote(vote_pct, account=account)
-        bot_comment(post, category, account, staff_picked)
-        reviewed.update_cell(row_index, 10, "Yes")
+        # If in last twelve hours before payout don't vote
+        if valid_age(post):
+            post.vote(vote_pct, account=account)
+            bot_comment(post, category, account, staff_picked)
+            reviewed.update_cell(row_index, 10, "Yes")
+        else:
+            reviewed.update_cell(row_index, 10, "EXPIRED")
     except Exception as vote_error:
         logger.error(vote_error)
 
 
 def main():
     """
-    If voting power is 99 then it votes on one contribution
+    If voting power is 99.75 then it votes on the contribution with the highest
+    score.
     """
     voting_power = get_current_vp(ACCOUNT)
     rows = reviewed.get_all_values()
@@ -136,7 +159,7 @@ def main():
     # Sort rows by score
     sorted_rows = sorted(rows[1:], key=lambda x: float(x[5]), reverse=True)
 
-    if voting_power < 99.86:
+    if voting_power < 99.75:
         return
 
     # Check if there's a staff picked contribution
