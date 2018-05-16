@@ -60,22 +60,6 @@ MAX_VOTE = {
 }
 
 
-def get_current_vp(username):
-    """
-    Get an account's current voting power. Credit to @emrebeyler.
-    """
-    account = Account(username)
-    last_vote_time = account["last_vote_time"].replace(tzinfo=None)
-    diff_in_seconds = (datetime.utcnow() - last_vote_time).total_seconds()
-    regenerated_vp = diff_in_seconds * 10000 / 86400 / 5
-    total_vp = (account["voting_power"] + regenerated_vp) / 100
-    if total_vp > 100:
-        total_vp = 100
-
-    logger.info(f"Current voting power: {total_vp}")
-    return total_vp
-
-
 def bot_comment(post, category, account, staff_picked=False):
     """
     Comments on the given post. Content changes depending on the category and
@@ -156,14 +140,15 @@ def main():
     If voting power is 99.75 then it votes on the contribution with the highest
     score.
     """
-    voting_power = get_current_vp(ACCOUNT)
+    voting_power = Account(ACCOUNT).get_voting_power()
+    logger.info(f"Current voting power: {voting_power}")
+    if voting_power < 99.75:
+        return
+
     rows = reviewed.get_all_values()
 
     # Sort rows by score
     sorted_rows = sorted(rows[1:], key=lambda x: float(x[5]), reverse=True)
-
-    if voting_power < 99.75:
-        return
 
     # Check if there's a staff picked contribution
     for row in sorted_rows:
