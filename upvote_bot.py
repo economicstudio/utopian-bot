@@ -11,6 +11,9 @@ import os
 # Get path of current folder
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
+# The minimum age a post must be to receive an upvote
+MINIMUM_AGE = 24
+
 # Logging
 logger = logging.getLogger("utopian-io")
 logger.setLevel(logging.INFO)
@@ -167,8 +170,11 @@ def main():
         voted_for = row[-2]
         staff_picked = row[6]
         if voted_for == "Pending" and staff_picked == "Yes":
-            vote_update(row, rows.index(row) + 1, True)
-            return
+            url = row[2]
+            post = Comment(url, steem_instance=steem)
+            if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
+                vote_update(row, rows.index(row) + 1, True)
+                return
 
     # Otherwise check for pending contribution with highest score
     for row in sorted_rows:
@@ -176,9 +182,13 @@ def main():
         if voted_for != "Pending":
             continue
 
-        vote_update(row, rows.index(row) + 1)
-        return
+        url = row[2]
+        post = Comment(url, steem_instance=steem)
+        if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
+            vote_update(row, rows.index(row) + 1)
+            return
 
+    logger.info(f"No eligible posts older than {MINIMUM_AGE} hours found.")
 
 if __name__ == '__main__':
     main()
