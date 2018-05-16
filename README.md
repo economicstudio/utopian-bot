@@ -1,9 +1,9 @@
 # utopian-bot
-Utopian bot that votes from the spreadsheet.
+Utopian bot that votes from a spreadsheet.
 
 # Installing
 
-The Utopian bot was made using Python3.6. For a quick and easy way of install it is recommended you install the [Anaconda Distribution](https://www.anaconda.com/what-is-anaconda/). 
+The Utopian bot was made using Python3.6. For a quick and easy way to install it is recommended you install the [Anaconda Distribution](https://www.anaconda.com/what-is-anaconda/). 
 
 ## Python packages
 Once Python is installed you can install the required packages in your virtual environment like so
