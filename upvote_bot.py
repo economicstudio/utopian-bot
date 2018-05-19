@@ -123,11 +123,14 @@ def vote_update(row, row_index, staff_picked=False):
 
     try:
         post = Comment(url, steem_instance=steem)
+        # Check if actually voted on post
+        votes = [vote["voter"] for vote in post.json()["active_votes"]]
         logger.info(f"Voting on {post.authorperm} with {vote_pct}%")
         # If in last twelve hours before payout don't vote
         if valid_age(post):
-            post.vote(vote_pct, account=account)
-            bot_comment(post, category, account, staff_picked)
+            if ACCOUNT not in votes:
+                post.vote(vote_pct, account=account)
+                bot_comment(post, category, account, staff_picked)
             reviewed.update_cell(row_index, 10, "Yes")
         else:
             reviewed.update_cell(row_index, 10, "EXPIRED")
