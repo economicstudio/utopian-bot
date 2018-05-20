@@ -32,7 +32,11 @@ def main():
     for delegation in get_delegations(1000):
         delegatee = delegation["delegatee"]
         logger.info(f"Undelegating from {delegatee}")
-        account.delegate_vesting_shares(delegatee, "0", ACCOUNT)
+        try:
+            account.delegate_vesting_shares(delegatee, "0", ACCOUNT)
+        except Exception as error:
+            logger.error(error)
+            continue
 
 if __name__ == '__main__':
     main()
