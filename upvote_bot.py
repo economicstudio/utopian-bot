@@ -128,7 +128,8 @@ def vote_update(row, row_index, staff_picked=False):
         logger.info(f"Voting on {post.authorperm} with {vote_pct}%")
         # If in last twelve hours before payout don't vote
         if valid_age(post):
-            if ACCOUNT not in votes:
+            allows_curation = post.json()["allow_curation_rewards"]
+            if ACCOUNT not in votes and allows_curation:
                 post.vote(vote_pct, account=account)
                 bot_comment(post, category, account, staff_picked)
             reviewed.update_cell(row_index, 10, "Yes")
