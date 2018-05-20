@@ -29,14 +29,10 @@ def get_delegations(limit):
 
 def main():
     account = Account(ACCOUNT)
-    today = datetime.today()
     for delegation in get_delegations(1000):
-        min_delegation_time = parse(delegation["min_delegation_time"])
         delegatee = delegation["delegatee"]
-        # Check if delegation should be withdrawn
-        if today > min_delegation_time:
-            logger.info(f"Undelegating from {delegatee}")
-            account.delegate_vesting_shares(delegatee, "0", ACCOUNT)
+        logger.info(f"Undelegating from {delegatee}")
+        account.delegate_vesting_shares(delegatee, "0", ACCOUNT)
 
 if __name__ == '__main__':
     main()
