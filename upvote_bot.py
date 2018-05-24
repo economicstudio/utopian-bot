@@ -36,13 +36,18 @@ credentials = ServiceAccountCredentials.from_json_keyfile_name(
 client = gspread.authorize(credentials)
 sheet = client.open("Utopian Reviews")
 
-# Get date of current and next Thursday
+# Get date of current, next and previous Thursday
 today = date.today()
 offset = (today.weekday() - 3) % 7
 this_week = today - timedelta(days=offset)
+last_week = this_week - timedelta(days=7)
 next_week = this_week + timedelta(days=7)
-title_reviewed = f"Reviewed - {this_week:%b %-d} - {next_week:%b %-d}"
-reviewed = sheet.worksheet(title_reviewed)
+
+# Get title's of most recent two worksheets
+title_previous = f"Reviewed - {last_week:%b %-d} - {this_week:%b %-d}"
+title_current = f"Reviewed - {this_week:%b %-d} - {next_week:%b %-d}"
+previous_reviewed = sheet.worksheet(title_previous)
+current_reviewed = sheet.worksheet(title_current)
 
 MAX_VOTE = {
     "ideas": 5.0,
@@ -107,7 +112,7 @@ def valid_age(post):
     return True
 
 
-def vote_update(row, row_index, staff_picked=False):
+def vote_update(row, previous, current, staff_picked=False):
     """
     Upvotes the highest priority contribution and updates the spreadsheet.
     """
@@ -121,6 +126,10 @@ def vote_update(row, row_index, staff_picked=False):
     else:
         vote_pct = float(row[-1])
 
+    if vote_pct > 31:
+        logger.info("Someone put a voting percentage higher than 30!")
+        return
+
     try:
         post = Comment(url, steem_instance=steem)
         # Check if actually voted on post
@@ -132,9 +141,27 @@ def vote_update(row, row_index, staff_picked=False):
             if ACCOUNT not in votes and allows_curation:
                 post.vote(vote_pct, account=account)
                 bot_comment(post, category, account, staff_picked)
-            reviewed.update_cell(row_index, 10, "Yes")
+            # Just in case sheet was updated in the meantime
+            previous_reviewed = sheet.worksheet(title_previous)
+            current_reviewed = sheet.worksheet(title_current)
+            # Update row depending on which sheet it's in
+            if row in previous:
+                row_index = previous.index(row) + 1
+                previous_reviewed.update_cell(row_index, 10, "Yes")
+            elif row in current:
+                row_index = current.index(row) + 1
+                current_reviewed.update_cell(row_index, 10, "Yes")
         else:
-            reviewed.update_cell(row_index, 10, "EXPIRED")
+            # Just in case sheet was updated in the meantime
+            previous_reviewed = sheet.worksheet(title_previous)
+            current_reviewed = sheet.worksheet(title_current)
+            # Update row depending on which sheet it's in
+            if row in previous:
+                row_index = previous.index(row) + 1
+                previous_reviewed.update_cell(row_index, 10, "EXPIRED")
+            elif row in current:
+                row_index = current.index(row) + 1
+                current_reviewed.update_cell(row_index, 10, "EXPIRED")
     except Exception as vote_error:
         logger.error(vote_error)
 
@@ -149,10 +176,12 @@ def main():
     if voting_power < 99.75:
         return
 
-    rows = reviewed.get_all_values()
+    previous = previous_reviewed.get_all_values()
+    current = current_reviewed.get_all_values()
+    rows = previous[1:] + current[1:]
 
     # Sort rows by score
-    sorted_rows = sorted(rows[1:], key=lambda x: float(x[5]), reverse=True)
+    sorted_rows = sorted(rows, key=lambda x: float(x[5]), reverse=True)
 
     # Check if there's a staff picked contribution
     for row in sorted_rows:
@@ -162,7 +191,7 @@ def main():
             url = row[2]
             post = Comment(url, steem_instance=steem)
             if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
-                vote_update(row, rows.index(row) + 1, True)
+                vote_update(row, previous, current, True)
                 return
 
     # Otherwise check for pending contribution with highest score
@@ -174,7 +203,7 @@ def main():
         url = row[2]
         post = Comment(url, steem_instance=steem)
         if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
-            vote_update(row, rows.index(row) + 1)
+            vote_update(row, previous, current)
             return
 
     logger.info(f"No eligible posts older than {MINIMUM_AGE} hours found.")
