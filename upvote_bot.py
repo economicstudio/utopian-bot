@@ -50,18 +50,18 @@ previous_reviewed = sheet.worksheet(title_previous)
 current_reviewed = sheet.worksheet(title_current)
 
 MAX_VOTE = {
-    "ideas": 5.0,
-    "development": 30.0,
+    "ideas": 15.0,
+    "development": 40.0,
     "bug-hunting": 8.0,
-    "translations": 20.0,
-    "graphics": 25.0,
-    "analysis": 25.0,
-    "social": 15.0,
-    "documentation": 15.0,
-    "tutorials": 15.0,
-    "video-tutorials": 20.0,
-    "copywriting": 15.0,
-    "blog": 15.0,
+    "translations": 25.0,
+    "graphics": 30.0,
+    "analysis": 35.0,
+    "social": 20.0,
+    "documentation": 20.0,
+    "tutorials": 20.0,
+    "video-tutorials": 25.0,
+    "copywriting": 20.0,
+    "blog": 20.0,
 }
 
 
@@ -126,8 +126,8 @@ def vote_update(row, previous, current, staff_picked=False):
     else:
         vote_pct = float(row[-1])
 
-    if vote_pct > 31:
-        logger.info("Someone put a voting percentage higher than 30!")
+    if vote_pct > 40:
+        logger.info("Someone put a voting percentage higher than 40!")
         return
 
     try:
