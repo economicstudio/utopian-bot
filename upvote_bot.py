@@ -50,7 +50,7 @@ previous_reviewed = sheet.worksheet(title_previous)
 current_reviewed = sheet.worksheet(title_current)
 
 MAX_VOTE = {
-    "ideas": 15.0,
+    "ideas": 12.0,
     "development": 40.0,
     "bug-hunting": 8.0,
     "translations": 25.0,
