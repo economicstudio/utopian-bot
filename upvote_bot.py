@@ -186,8 +186,8 @@ def main():
     # Check if there's a staff picked contribution
     for row in sorted_rows:
         voted_for = row[-2]
-        staff_picked = row[6]
-        if voted_for == "Pending" and staff_picked == "Yes":
+        staff_picked = row[6].lower()
+        if voted_for == "Pending" and staff_picked == "yes":
             url = row[2]
             post = Comment(url, steem_instance=steem)
             if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
