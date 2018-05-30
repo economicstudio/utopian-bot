@@ -185,9 +185,9 @@ def main():
 
     # Check if there's a staff picked contribution
     for row in sorted_rows:
-        voted_for = row[-2]
+        voted_for = row[-2].lower()
         staff_picked = row[6].lower()
-        if voted_for == "Pending" and staff_picked == "yes":
+        if voted_for == "pending" and staff_picked == "yes":
             url = row[2]
             post = Comment(url, steem_instance=steem)
             if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
@@ -196,8 +196,8 @@ def main():
 
     # Otherwise check for pending contribution with highest score
     for row in sorted_rows:
-        voted_for = row[-2]
-        if voted_for != "Pending":
+        voted_for = row[-2].lower()
+        if voted_for != "pending":
             continue
 
         url = row[2]
