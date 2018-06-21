@@ -26,7 +26,7 @@ logger.addHandler(fh)
 
 # Beem
 steem = Steem()
-ACCOUNT = "utopian"
+ACCOUNT = "utopian-io"
 
 # Spreadsheet variables
 scope = ["https://spreadsheets.google.com/feeds",
