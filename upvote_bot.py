@@ -26,7 +26,7 @@ logger.addHandler(fh)
 
 # Beem
 steem = Steem()
-ACCOUNT = "utopian-io"
+ACCOUNT = "utopian"
 
 # Spreadsheet variables
 scope = ["https://spreadsheets.google.com/feeds",
@@ -63,6 +63,17 @@ MAX_VOTE = {
     "copywriting": 20.0,
     "blog": 20.0,
 }
+
+CORRECT_BENEFICIARIES = [
+    {
+        "account": "davinci.pay",
+        "weight": 1000
+    },
+    {
+        "account": "utopian.pay",
+        "weight": 500
+    }
+]
 
 
 def bot_comment(post, category, account, staff_picked=False):
@@ -112,6 +123,27 @@ def valid_age(post):
     return True
 
 
+def valid_translation(post):
+    """
+    Checks if a translation has the correct beneficiaries set.
+    """
+    if post.json()["beneficiaries"] == CORRECT_BENEFICIARIES:
+        return True
+
+
+def update_sheet(row, previous, current, vote_status):
+    # Just in case sheet was updated in the meantime
+    previous_reviewed = sheet.worksheet(title_previous)
+    current_reviewed = sheet.worksheet(title_current)
+    # Update row depending on which sheet it's in
+    if row in previous:
+        row_index = previous.index(row) + 1
+        previous_reviewed.update_cell(row_index, 10, vote_status)
+    elif row in current:
+        row_index = current.index(row) + 1
+        current_reviewed.update_cell(row_index, 10, vote_status)
+
+
 def vote_update(row, previous, current, staff_picked=False):
     """
     Upvotes the highest priority contribution and updates the spreadsheet.
@@ -124,7 +156,11 @@ def vote_update(row, previous, current, staff_picked=False):
     if staff_picked:
         vote_pct = MAX_VOTE[category]
     else:
-        vote_pct = float(row[-1])
+        try:
+            vote_pct = float(row[-1])
+        except ValueError as error:
+            logger.error(f"{url} giving error: {error}")
+            return
 
     if vote_pct > 40:
         logger.info("Someone put a voting percentage higher than 40!")
@@ -138,30 +174,26 @@ def vote_update(row, previous, current, staff_picked=False):
         # If in last twelve hours before payout don't vote
         if valid_age(post):
             allows_curation = post.json()["allow_curation_rewards"]
-            if ACCOUNT not in votes and allows_curation:
+
+            # Already voted on
+            if ACCOUNT in votes:
+                logger.error(f"ALREADY VOTED ON: {url}")
+                update_sheet(row, previous, current, "Already voted on!")
+            # Curation rewards turned off
+            elif not allows_curation:
+                logger.error(f"DOES NOT ALLOW CURATION REWARDS: {url}")
+                update_sheet(row, previous, current, "Doesn't allow curation!")
+            # Wrong beneficiaries set
+            elif category == "translations" and not valid_translation(post):
+                logger.error(f"WRONG BENEFICIARIES: {url}")
+                update_sheet(row, previous, current, "Beneficiaries wrong!")
+            # Everything okay, so vote!
+            else:
                 post.vote(vote_pct, account=account)
                 bot_comment(post, category, account, staff_picked)
-            # Just in case sheet was updated in the meantime
-            previous_reviewed = sheet.worksheet(title_previous)
-            current_reviewed = sheet.worksheet(title_current)
-            # Update row depending on which sheet it's in
-            if row in previous:
-                row_index = previous.index(row) + 1
-                previous_reviewed.update_cell(row_index, 10, "Yes")
-            elif row in current:
-                row_index = current.index(row) + 1
-                current_reviewed.update_cell(row_index, 10, "Yes")
+                update_sheet(row, previous, current, "Yes")
         else:
-            # Just in case sheet was updated in the meantime
-            previous_reviewed = sheet.worksheet(title_previous)
-            current_reviewed = sheet.worksheet(title_current)
-            # Update row depending on which sheet it's in
-            if row in previous:
-                row_index = previous.index(row) + 1
-                previous_reviewed.update_cell(row_index, 10, "EXPIRED")
-            elif row in current:
-                row_index = current.index(row) + 1
-                current_reviewed.update_cell(row_index, 10, "EXPIRED")
+            update_sheet(row, previous, current, "EXPIRED")
     except Exception as vote_error:
         logger.error(vote_error)
 
