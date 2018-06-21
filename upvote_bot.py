@@ -98,11 +98,6 @@ def bot_comment(post, category, account, staff_picked=False):
                  "the open source community.\n\n")
 
     body += (f"We’re already looking forward to your next {contribution}!\n\n"
-             "**Contributing on Utopian**\n"
-             "Learn how to contribute on "
-             "<a href='https://join.utopian.io'>our website</a> or by watching"
-             " <a href='https://www.youtube.com/watch?v=8S1AtrzYY1Q'>this "
-             "tutorial</a> on Youtube.\n\n"
              "**Want to chat? Join us on Discord https://discord.gg/h52nFrV.**"
              "\n\n<a href='https://v2.steemconnect.com/sign/account-witness-v"
              "ote?witness=utopian-io&approve=1'>Vote for Utopian Witness!</a>")
