@@ -189,7 +189,7 @@ def vote_update(row, previous, current, staff_picked=False):
                 update_sheet(row, previous, current, "Beneficiaries wrong!")
             # Voting % higher than possible
             elif vote_pct > max_pct(category):
-                logger.error(f"Someone changed score for {url} - not voting!")
+                logger.error(f"VOTE % EXCEEDS MAX {url} - not voting!")
                 update_sheet(row, previous, current, "Vote pct exceeds max!")
             # Everything okay, so vote!
             else:
