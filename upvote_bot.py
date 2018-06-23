@@ -50,19 +50,21 @@ previous_reviewed = sheet.worksheet(title_previous)
 current_reviewed = sheet.worksheet(title_current)
 
 MAX_VOTE = {
-    "ideas": 12.0,
-    "development": 40.0,
-    "bug-hunting": 8.0,
-    "translations": 25.0,
-    "graphics": 30.0,
-    "analysis": 35.0,
-    "social": 20.0,
-    "documentation": 20.0,
-    "tutorials": 20.0,
-    "video-tutorials": 25.0,
-    "copywriting": 20.0,
-    "blog": 20.0,
+    "ideas": 20.0,
+    "development": 55.0,
+    "bug-hunting": 13.0,
+    "translations": 35.0,
+    "graphics": 40.0,
+    "analysis": 45.0,
+    "social": 30.0,
+    "documentation": 30.0,
+    "tutorials": 30.0,
+    "video-tutorials": 35.0,
+    "copywriting": 30.0,
+    "blog": 30.0,
 }
+MAX_POSSIBLE = max(MAX_VOTE.values())
+MAX_TASK_REQUEST = 6.0
 
 CORRECT_BENEFICIARIES = [
     {
@@ -149,7 +151,11 @@ def vote_update(row, previous, current, staff_picked=False):
     account = Account(ACCOUNT)
     # Check if post was staff picked
     if staff_picked:
-        vote_pct = MAX_VOTE[category]
+        try:
+            vote_pct = MAX_VOTE[category]
+        except KeyError:
+            # Staff picked task request
+            vote_pct = MAX_TASK_REQUEST
     else:
         try:
             vote_pct = float(row[-1])
@@ -157,8 +163,8 @@ def vote_update(row, previous, current, staff_picked=False):
             logger.error(f"{url} giving error: {error}")
             return
 
-    if vote_pct > 40:
-        logger.info("Someone put a voting percentage higher than 40!")
+    if vote_pct > MAX_POSSIBLE:
+        logger.info(f"Vote is higher than {MAX_POSSIBLE} - not voting!")
         return
 
     try:
