@@ -63,7 +63,6 @@ MAX_VOTE = {
     "copywriting": 30.0,
     "blog": 30.0,
 }
-MAX_POSSIBLE = max(MAX_VOTE.values())
 MAX_TASK_REQUEST = 6.0
 
 CORRECT_BENEFICIARIES = [
@@ -141,6 +140,14 @@ def update_sheet(row, previous, current, vote_status):
         current_reviewed.update_cell(row_index, 10, vote_status)
 
 
+def max_pct(category):
+    try:
+        vote_pct = MAX_VOTE[category]
+    except KeyError:
+        vote_pct = MAX_TASK_REQUEST
+    return vote_pct
+
+
 def vote_update(row, previous, current, staff_picked=False):
     """
     Upvotes the highest priority contribution and updates the spreadsheet.
@@ -151,21 +158,13 @@ def vote_update(row, previous, current, staff_picked=False):
     account = Account(ACCOUNT)
     # Check if post was staff picked
     if staff_picked:
-        try:
-            vote_pct = MAX_VOTE[category]
-        except KeyError:
-            # Staff picked task request
-            vote_pct = MAX_TASK_REQUEST
+        vote_pct = max_pct(category)
     else:
         try:
             vote_pct = float(row[-1])
         except ValueError as error:
             logger.error(f"{url} giving error: {error}")
             return
-
-    if vote_pct > MAX_POSSIBLE:
-        logger.info(f"Vote is higher than {MAX_POSSIBLE} - not voting!")
-        return
 
     try:
         post = Comment(url, steem_instance=steem)
@@ -188,6 +187,10 @@ def vote_update(row, previous, current, staff_picked=False):
             elif category == "translations" and not valid_translation(post):
                 logger.error(f"WRONG BENEFICIARIES: {url}")
                 update_sheet(row, previous, current, "Beneficiaries wrong!")
+            # Voting % higher than possible
+            elif vote_pct > max_pct(category):
+                logger.error(f"Someone changed score for {url} - not voting!")
+                update_sheet(row, previous, current, "Vote pct exceeds max!")
             # Everything okay, so vote!
             else:
                 post.vote(vote_pct, account=account)
