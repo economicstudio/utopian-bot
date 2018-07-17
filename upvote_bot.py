@@ -7,6 +7,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import gspread
 import logging
 import os
+import requests
 
 # Get path of current folder
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -204,10 +205,11 @@ def vote_update(row, previous, current, staff_picked=False):
 
 def main():
     """
-    If voting power is 99.75 then it votes on the contribution with the highest
-    score.
+    If voting power is 99.75 then it votes on the oldest contribution currently
+    pending.
     """
     voting_power = Account(ACCOUNT).get_voting_power()
+    
     logger.info(f"Current voting power: {voting_power}")
     if voting_power < 99.75:
         return
@@ -216,33 +218,26 @@ def main():
     current = current_reviewed.get_all_values()
     rows = previous[1:] + current[1:]
 
-    # Sort rows by score
-    sorted_rows = sorted(rows, key=lambda x: float(x[5]), reverse=True)
+    response = requests.get("https://utopian.rocks/api/posts?status=pending")
+    if len(response.json()) == 0:
+        logger.info(f"No eligible posts older than {MINIMUM_AGE} hours found.")
+        return
 
-    # Check if there's a staff picked contribution
-    for row in sorted_rows:
-        voted_for = row[-2].lower()
-        staff_picked = row[6].lower()
-        if voted_for == "pending" and staff_picked == "yes":
+    pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
+
+    for contribution in pending:
+        for row in rows:
+            voted_for = row[-2].lower()
+            if voted_for != "pending":
+                continue
+
             url = row[2]
-            post = Comment(url, steem_instance=steem)
-            if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
-                vote_update(row, previous, current, True)
-                return
-
-    # Otherwise check for pending contribution with highest score
-    for row in sorted_rows:
-        voted_for = row[-2].lower()
-        if voted_for != "pending":
-            continue
-
-        url = row[2]
-        post = Comment(url, steem_instance=steem)
-        if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
-            vote_update(row, previous, current)
-            return
-
-    logger.info(f"No eligible posts older than {MINIMUM_AGE} hours found.")
+            # Contribution found in spreadsheet
+            if url == contribution["url"]:
+                post = Comment(url, steem_instance=steem)
+                if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
+                    vote_update(row, previous, current)
+                    return
 
 if __name__ == '__main__':
     main()
