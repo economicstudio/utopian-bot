@@ -236,7 +236,11 @@ def main():
             if url == contribution["url"]:
                 post = Comment(url, steem_instance=steem)
                 if post.time_elapsed() > timedelta(hours=MINIMUM_AGE):
-                    vote_update(row, previous, current)
+                    staff_picked = row[6].lower()
+                    if staff_picked:
+                        vote_update(row, previous, current, True)
+                    else:
+                        vote_update(row, previous, current)
                     return
 
 if __name__ == '__main__':
