@@ -66,16 +66,15 @@ MAX_VOTE = {
 }
 MAX_TASK_REQUEST = 6.0
 
-CORRECT_BENEFICIARIES = [
-    {
-        "account": "davinci.pay",
-        "weight": 1000
-    },
-    {
-        "account": "utopian.pay",
-        "weight": 500
-    }
-]
+DAVINCI_BENEFICIARY = {
+    "account": "davinci.pay",
+    "weight": 1000
+}
+
+UTOPIAN_BENEFICIARY = {
+    "account": "utopian.pay",
+    "weight": 500
+}
 
 
 def bot_comment(post, category, account, staff_picked=False):
@@ -124,11 +123,25 @@ def valid_translation(post):
     """
     Checks if a translation has the correct beneficiaries set.
     """
-    if post.json()["beneficiaries"] == CORRECT_BENEFICIARIES:
+    if (DAVINCI_BENEFICIARY in post.json()["beneficiaries"] and
+        UTOPIAN_BENEFICIARY in post.json()["beneficiaries"]):
         return True
+    return False
+
+
+def beneficiary(post):
+    """
+    Checks if utopian.pay set as 5% beneficiary
+    """
+    if (UTOPIAN_BENEFICIARY in post.json()["beneficiaries"]):
+        return True
+    return False
 
 
 def update_sheet(row, previous, current, vote_status):
+    """
+    Updates the row in one of the eligible worksheets.
+    """
     # Just in case sheet was updated in the meantime
     previous_reviewed = sheet.worksheet(title_previous)
     current_reviewed = sheet.worksheet(title_current)
@@ -142,11 +155,22 @@ def update_sheet(row, previous, current, vote_status):
 
 
 def max_pct(category):
+    """
+    Returns the max voting percentage of the given category.
+    """
     try:
         vote_pct = MAX_VOTE[category]
     except KeyError:
         vote_pct = MAX_TASK_REQUEST
     return vote_pct
+
+
+def update_pct(vote_pct):
+    """
+    Updates the voting percentage if beneficiaries utopian.pay set.
+    """
+    vote_pct = float(vote_pct)
+    return vote_pct + 0.1 * vote_pct + UTOPIAN_BENEFICIARY["weight"] / 100.0
 
 
 def vote_update(row, previous, current, staff_picked=False):
@@ -155,50 +179,58 @@ def vote_update(row, previous, current, staff_picked=False):
     """
     url = row[2]
     category = row[4]
-
     account = Account(ACCOUNT)
+
     # Check if post was staff picked
     if staff_picked:
         vote_pct = max_pct(category)
     else:
-        try:
-            vote_pct = float(row[-1])
-        except ValueError as error:
-            logger.error(f"{url} giving error: {error}")
-            return
+        vote_pct = float(row[-1])
 
     try:
         post = Comment(url, steem_instance=steem)
-        # Check if actually voted on post
-        votes = [vote["voter"] for vote in post.json()["active_votes"]]
-        logger.info(f"Voting on {post.authorperm} with {vote_pct}%")
+        
         # If in last twelve hours before payout don't vote
         if valid_age(post):
-            allows_curation = post.json()["allow_curation_rewards"]
-
-            # Already voted on
-            if ACCOUNT in votes:
-                logger.error(f"ALREADY VOTED ON: {url}")
-                update_sheet(row, previous, current, "Already voted on!")
-            # Curation rewards turned off
-            elif not allows_curation:
-                logger.error(f"DOES NOT ALLOW CURATION REWARDS: {url}")
-                update_sheet(row, previous, current, "Doesn't allow curation!")
-            # Wrong beneficiaries set
-            elif category == "translations" and not valid_translation(post):
-                logger.error(f"WRONG BENEFICIARIES: {url}")
-                update_sheet(row, previous, current, "Beneficiaries wrong!")
-            # Voting % higher than possible
-            elif vote_pct > max_pct(category):
-                logger.error(f"VOTE % EXCEEDS MAX {url} - not voting!")
-                update_sheet(row, previous, current, "Vote pct exceeds max!")
-            # Everything okay, so vote!
-            else:
-                post.vote(vote_pct, account=account)
-                bot_comment(post, category, account, staff_picked)
-                update_sheet(row, previous, current, "Yes")
-        else:
+            logger.error(f"In last 12 hours before payout: {url}")
             update_sheet(row, previous, current, "EXPIRED")
+            return
+
+        # Already voted on
+        votes = [vote["voter"] for vote in post.json()["active_votes"]]
+        if ACCOUNT in votes:
+            logger.error(f"Already voted on: {url}")
+            update_sheet(row, previous, current, "Already voted on!")
+            return
+
+        # Curation rewards turned off
+        allows_curation = post.json()["allow_curation_rewards"]
+        if not allows_curation:
+            logger.error(f"Does not allow curation rewards: {url}")
+            update_sheet(row, previous, current, "Doesn't allow curation!")
+            return
+        
+        # Wrong translation beneficiaries set
+        if category == "translations" and not valid_translation(post):
+            logger.error(f"Wrong translation beneficiaries: {url}")
+            update_sheet(row, previous, current, "Beneficiaries wrong!")
+            return
+        
+        # Voting % higher than possible
+        if vote_pct > max_pct(category):
+            logger.error(f"Voting % exceeds max: {url}")
+            update_sheet(
+                row, previous, current, "Voting percentage exceeds max!")
+            return
+        
+        beneficiary_set = beneficiary(post)
+        if beneficiary_set:
+            vote_pct = update_pct(vote_pct)
+
+        logger.info(f"Voting on {post.authorperm} with {vote_pct}%")
+        post.vote(vote_pct, account=account)
+        bot_comment(post, category, account, staff_picked)
+        update_sheet(row, previous, current, "Yes")
     except Exception as vote_error:
         logger.error(vote_error)
 
