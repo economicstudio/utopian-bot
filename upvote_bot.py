@@ -191,7 +191,7 @@ def vote_update(row, previous, current, staff_picked=False):
         post = Comment(url, steem_instance=steem)
         
         # If in last twelve hours before payout don't vote
-        if valid_age(post):
+        if not valid_age(post):
             logger.error(f"In last 12 hours before payout: {url}")
             update_sheet(row, previous, current, "EXPIRED")
             return
