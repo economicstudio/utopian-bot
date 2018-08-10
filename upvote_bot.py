@@ -170,7 +170,8 @@ def update_pct(vote_pct):
     Updates the voting percentage if beneficiaries utopian.pay set.
     """
     vote_pct = float(vote_pct)
-    return vote_pct + 0.1 * vote_pct + UTOPIAN_BENEFICIARY["weight"] / 100.0
+    utopian_weight = UTOPIAN_BENEFICIARY["weight"]
+    return vote_pct + 0.1 * vote_pct + utopian_weight / 100.0 + 1.0
 
 
 def vote_update(row, previous, current, staff_picked=False):
