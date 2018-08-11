@@ -6,7 +6,7 @@ import constants
 import requests
 
 
-def bot_comment(post, category, account, staff_picked=False):
+def bot_comment(post, category, staff_picked=False):
     """
     Comments on the given post. Content changes depending on the category and
     if the post was staff picked or not.
@@ -151,7 +151,7 @@ def vote_update(row, previous, current, staff_picked=False):
 
         constants.LOGGER.info(f"Voting on {post.authorperm} with {vote_pct}%")
         post.vote(vote_pct, account=account)
-        bot_comment(post, category, account, staff_picked)
+        bot_comment(post, category, staff_picked)
         update_sheet(row, previous, current, "Yes")
     except Exception as vote_error:
         constants.LOGGER.error(vote_error)
