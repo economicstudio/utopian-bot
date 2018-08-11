@@ -2,3 +2,4 @@ venv/
 client_secret.json
 *.log
 *.json
+__pycache__/
