@@ -9,7 +9,7 @@ import os
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 # The minimum age a post must be to receive an upvote
-MINIMUM_AGE = 24
+MIN_AGE = 24
 
 # Logging
 LOGGER = logging.getLogger("utopian-io")
@@ -25,7 +25,7 @@ LOGGER.addHandler(FILE_HANDLER)
 STEEM = Steem()
 
 # Accounts
-ACCOUNT = "utopian-io"
+ACCOUNT = "amosbastian"
 
 # Spreadsheet variables
 SCOPE = ["https://spreadsheets.google.com/feeds",
@@ -33,7 +33,7 @@ SCOPE = ["https://spreadsheets.google.com/feeds",
 CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
     f"{DIR_PATH}/client_secret.json", SCOPE)
 CLIENT = gspread.authorize(CREDENTIALS)
-SHEET = CLIENT.open("Utopian Reviews")
+SHEET = CLIENT.open("Copy of Utopian Reviews")
 
 # Get date of current, next and previous Thursday
 TODAY = date.today()
@@ -95,3 +95,27 @@ COMMENT_UNVOTE = (
     "\n\n Upvote this comment to help Utopian grow its power and help other "
     "Open Source contributions like this one.\n\n**Want to chat? Join us on "
     "[Discord](https://discord.gg/h52nFrV).**")
+
+# Category points
+CATEGORY_POINTS = {
+    "ideas": 4.0,
+    "development": 8.5,
+    "graphics": 6.0,
+    "bug-hunting": 6.5,
+    "analysis": 6.5,
+    "social": 4.0,
+    "video-tutorials": 8.0,
+    "tutorials": 8.0,
+    "copywriting": 4.0,
+    "documentation": 4.5,
+    "blog": 4.5,
+    "translations": 8.0
+}
+TASK_REQUEST = 2.5
+
+# Review comment
+COMMENT_MATCH = (
+    "Need help? Write a ticket on https://support.utopian.io/.")
+
+COMMENT_ROW = (
+    "Hi!")
