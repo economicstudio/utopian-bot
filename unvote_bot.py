@@ -1,10 +1,10 @@
 from beem.account import Account
 from beem.comment import Comment, RecentReplies
+from contribution import Contribution
 from datetime import timedelta
 import constants
 import json
 import os
-import time
 
 
 def get_replies(post):
@@ -38,7 +38,7 @@ def unvote_post(row, previous, current):
     """
     Unvotes the given post and updates the spreadsheet to reflect this.
     """
-    url = row[2]
+    url = row.url
     account = Account(constants.ACCOUNT)
     post = Comment(url, steem_instance=constants.STEEM)
 
@@ -51,7 +51,6 @@ def unvote_post(row, previous, current):
     try:
         constants.LOGGER.info(f"Unvoting {url}")
         post.vote(0, account=account)
-        time.sleep(3)
         update_comment(post)
     except Exception as error:
         constants.LOGGER.error(error)
@@ -59,14 +58,15 @@ def unvote_post(row, previous, current):
     previous_reviewed = constants.SHEET.worksheet(constants.TITLE_PREVIOUS)
     current_reviewed = constants.SHEET.worksheet(constants.TITLE_CURRENT)
 
+    row = list(row.__dict__.values())
     if row in previous:
         row_index = previous.index(row) + 1
-        previous_reviewed.update_cell(row_index, 10, "Unvoted")
-        previous_reviewed.update_cell(row_index, 11, 0)
+        previous_reviewed.update_cell(row_index, 11, "Unvoted")
+        previous_reviewed.update_cell(row_index, 12, 0)
     elif row in current:
         row_index = current.index(row) + 1
-        current_reviewed.update_cell(row_index, 10, "Unvoted")
-        current_reviewed.update_cell(row_index, 11, 0)
+        current_reviewed.update_cell(row_index, 11, "Unvoted")
+        current_reviewed.update_cell(row_index, 12, 0)
 
 
 def main():
@@ -84,15 +84,14 @@ def main():
         with open(f"{constants.DIR_PATH}/reviews.json") as fd:
             data = json.load(fd)
         for row in reviewed:
+            row = Contribution(row)
             # Row has been changed
             if row not in data:
-                voted_on = row[-2]
-                score = float(row[5])
+                score = float(row.score)
                 # Only unvote posts with score 0 that have been voted on
-                if score == 0 and voted_on == "Yes":
+                if score == 0 and row.vote_status == "Yes":
                     unvote_post(row, previous, current)
 
-    # Save current data
     with open(f"{constants.DIR_PATH}/reviews.json", "w") as fd:
         json.dump(reviewed, fd, indent=4)
 
