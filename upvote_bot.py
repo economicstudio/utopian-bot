@@ -13,7 +13,6 @@ def bot_comment(post, category, staff_picked=False):
     Comments on the given post. Content changes depending on the category and
     if the post was staff picked or not.
     """
-    # Change text depending on if contribution is task request or not
     if "task" in category:
         contribution = "task request"
     else:
@@ -21,7 +20,6 @@ def bot_comment(post, category, staff_picked=False):
 
     body = constants.COMMENT_HEADER.format(post.author)
 
-    # If staff picked add text
     if staff_picked:
         body += constants.COMMENT_STAFF_PICK.format(category)
 
@@ -121,7 +119,7 @@ def vote_update(row, staff_picked=False):
 
     try:
         post = Comment(url, steem_instance=constants.STEEM)
-        
+
         # If in last twelve hours before payout don't vote
         if not valid_age(post):
             constants.LOGGER.error(f"In last 12 hours before payout: {url}")
@@ -141,26 +139,26 @@ def vote_update(row, staff_picked=False):
             constants.LOGGER.error(f"Does not allow curation rewards: {url}")
             update_sheet(row, "Doesn't allow curation!")
             return
-        
+
         # Wrong translation beneficiaries set
         if category == "translations" and not valid_translation(post):
             constants.LOGGER.error(f"Wrong translation beneficiaries: {url}")
             update_sheet(row, "Beneficiaries wrong!")
             return
-        
+
         # Voting % higher than possible
         if weight > max_weight(category):
             constants.LOGGER.error(f"Voting % exceeds max: {url}")
             update_sheet(row, "Voting percentage exceeds max!")
             return
-        
+
         beneficiary_set = beneficiary(post)
         if beneficiary_set:
             weight = update_weight(weight)
 
         constants.LOGGER.info(f"Voting on {post.authorperm} with {weight}%")
-        # post.vote(weight, account=account)
-        # bot_comment(post, category, staff_picked)
+        post.vote(weight, account=account)
+        bot_comment(post, category, staff_picked)
         update_sheet(row, "Yes")
     except Exception as vote_error:
         constants.LOGGER.error(vote_error)
@@ -185,55 +183,65 @@ def points_to_weight(account, points):
     return 100 * points / max_SBD
 
 
-def handle_comment(contribution):
+def handle_comment(contribution, review_count):
     """
     Finds the moderator's comment in response to the contribution then upvotes
     and replies to it.
     """
     post = Comment(contribution.url)
-    for reply in post.get_replies():
-        if reply.author == contribution.moderator:
-            if not constants.COMMENT_MATCH in reply.body:
-                return False
+    for comment in post.get_replies():
+        if comment.author == contribution.moderator:
             account = Account(constants.ACCOUNT)
-            
+
             try:
                 points = constants.CATEGORY_POINTS[contribution.category]
             except KeyError:
                 points = constants.TASK_REQUEST
-            
+
             weight = points_to_weight(account, points)
-            
+
             try:
-                # reply.vote(weight, account=account)
-                constants.LOGGER.info(f"Handling comment: {reply.authorperm}")
+                comment.vote(weight, account=account)
+                comment.reply(
+                    constants.COMMENT_REVIEW.format(
+                        comment.author,
+                        review_count
+                    ),
+                    author=constants.ACCOUNT)
+                authorperm = comment.authorperm
+                constants.LOGGER.info(
+                    f"Upvoting comment: {authorperm} with weight {weight}%")
                 return True
             except Exception as error:
                 constants.LOGGER.error(f"Handle comment error: {error}")
                 return False
-            
+
             break
+    constants.LOGGER.error(
+        f"No moderator comment found under {contribution.url}")
+    return True
 
 
-def review_vote():
+def review_vote(contributions):
     """
     Finds the first review comment waiting to be upvoted and tries upvoting it.
     """
-    current = constants.CURRENT_REVIEWED.get_all_values()
-    for row in current:
+    moderators = []
+    for row in contributions:
         contribution = Contribution(row)
+        moderators.append(contribution.moderator)
         if contribution.review_status.lower() == "pending":
             try:
-                is_handled = handle_comment(contribution)
-                print(is_handled)
+                review_count = moderators.count(contribution.moderator)
+                is_handled = handle_comment(contribution, review_count)
                 if is_handled:
                     update_sheet(contribution, "Yes", False)
                     time.sleep(20)
             except Exception as error:
                 constants.LOGGER.error(f"Review vote error: {error}")
-            
+
             break
-            
+
 
 def main():
     """
@@ -241,13 +249,12 @@ def main():
     currently pending and a review comment made be a moderator.
     """
     voting_power = Account(constants.ACCOUNT).get_voting_power()
-    
-    constants.LOGGER.info(f"Current voting power: {voting_power}")
-    # if voting_power < 99.75:
-        # return
 
-    review_vote()
-    _, _, rows = get_rows()
+    if voting_power < 99.75:
+        return
+
+    _, current, rows = get_rows()
+    review_vote(current)
 
     response = requests.get("https://utopian.rocks/api/posts?status=pending")
     if len(response.json()) == 0:
