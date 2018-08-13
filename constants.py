@@ -25,7 +25,7 @@ LOGGER.addHandler(FILE_HANDLER)
 STEEM = Steem()
 
 # Accounts
-ACCOUNT = "amosbastian"
+ACCOUNT = "utopian-io"
 
 # Spreadsheet variables
 SCOPE = ["https://spreadsheets.google.com/feeds",
@@ -33,7 +33,7 @@ SCOPE = ["https://spreadsheets.google.com/feeds",
 CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
     f"{DIR_PATH}/client_secret.json", SCOPE)
 CLIENT = gspread.authorize(CREDENTIALS)
-SHEET = CLIENT.open("Copy of Utopian Reviews")
+SHEET = CLIENT.open("Utopian Reviews")
 
 # Get date of current, next and previous Thursday
 TODAY = date.today()
@@ -114,8 +114,6 @@ CATEGORY_POINTS = {
 TASK_REQUEST = 2.5
 
 # Review comment
-COMMENT_MATCH = (
-    "Need help? Write a ticket on https://support.utopian.io/.")
-
-COMMENT_ROW = (
-    "Hi!")
+COMMENT_REVIEW = (
+    "Thank you for your review, @{}!\n\nSo far this week you've reviewed {} "
+    "contributions. Keep up the good work!")
