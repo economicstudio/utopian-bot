@@ -96,6 +96,8 @@ COMMENT_UNVOTE = (
     "Open Source contributions like this one.\n\n**Want to chat? Join us on "
     "[Discord](https://discord.gg/h52nFrV).**")
 
+COMMENT_PATTERN = "Chat with us on [Discord]"
+
 # Category points
 CATEGORY_POINTS = {
     "ideas": 6.0,
