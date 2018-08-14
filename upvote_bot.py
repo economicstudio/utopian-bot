@@ -191,9 +191,6 @@ def handle_comment(contribution, review_count):
     post = Comment(contribution.url)
     for comment in post.get_replies():
         if comment.author == contribution.moderator:
-            if constants.COMMENT_PATTERN not in comment.body:
-                continue
-
             account = Account(constants.ACCOUNT)
 
             try:
