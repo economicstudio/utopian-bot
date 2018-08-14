@@ -98,17 +98,17 @@ COMMENT_UNVOTE = (
 
 # Category points
 CATEGORY_POINTS = {
-    "ideas": 4.0,
-    "development": 8.5,
-    "graphics": 6.0,
-    "bug-hunting": 6.5,
-    "analysis": 6.5,
-    "social": 4.0,
+    "ideas": 6.0,
+    "development": 10.0,
+    "graphics": 8.0,
+    "bug-hunting": 7.0,
+    "analysis": 8.0,
+    "social": 5.0,
     "video-tutorials": 8.0,
     "tutorials": 8.0,
-    "copywriting": 4.0,
-    "documentation": 4.5,
-    "blog": 4.5,
+    "copywriting": 5.0,
+    "documentation": 5.0,
+    "blog": 6.0,
     "translations": 8.0
 }
 TASK_REQUEST = 2.5
