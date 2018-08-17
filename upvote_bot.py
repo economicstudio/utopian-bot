@@ -183,6 +183,15 @@ def points_to_weight(account, points):
     return 100 * points / max_SBD
 
 
+def valid_comment(comment):
+    """
+    Returns True if comment older than 48 hours.
+    """
+    if comment.time_elapsed() > timedelta(hours=48):
+        return True
+    return False
+
+
 def handle_comment(contribution, review_count):
     """
     Finds the moderator's comment in response to the contribution then upvotes
@@ -191,6 +200,9 @@ def handle_comment(contribution, review_count):
     post = Comment(contribution.url)
     for comment in post.get_replies():
         if comment.author == contribution.moderator:
+            if not valid_comment(comment):
+                return False
+
             account = Account(constants.ACCOUNT)
 
             try:
