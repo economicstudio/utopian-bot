@@ -265,8 +265,12 @@ def main():
     if voting_power < 99.75:
         return
 
-    _, _, rows = get_rows()
-    review_vote(rows)
+    previous, current, rows = get_rows()
+
+    if "Pending" in [Contribution(row).review_status for row in current]:
+        review_vote(previous)
+    else:
+        review_vote(current)
 
     response = requests.get("https://utopian.rocks/api/posts?status=pending")
     if len(response.json()) == 0:
