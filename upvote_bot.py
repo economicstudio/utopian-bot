@@ -267,7 +267,7 @@ def main():
 
     previous, current, rows = get_rows()
 
-    if "Pending" in [Contribution(row).review_status for row in current]:
+    if "Pending" in [Contribution(row).review_status for row in previous]:
         review_vote(previous)
     else:
         review_vote(current)
