@@ -85,9 +85,9 @@ COMMENT_STAFF_PICK = (
 
 COMMENT_FOOTER = (
     "We’re already looking forward to your next {}!\n\n**Want to chat? Join "
-    "us on Discord https://discord.gg/h52nFrV.**\n\n<a href='https://v2.steemc" 
-    "onnect.com/sign/account-witness-vote?witness=utopian-io&approve=1'>Vote "
-    "for Utopian Witness!</a>")
+    "us on Discord https://discord.gg/h52nFrV.**\n\n<a href='https://steemconn" 
+    "ect.com/sign/account-witness-vote?witness=utopian-io&approve=1'>Vote for "
+    "Utopian Witness!</a>")
 
 COMMENT_UNVOTE = (
     "Hey @{}, your contribution was unvoted because we found out that it did "
