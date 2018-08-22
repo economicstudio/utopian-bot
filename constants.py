@@ -100,20 +100,20 @@ COMMENT_PATTERN = "Chat with us on [Discord]"
 
 # Category points
 CATEGORY_POINTS = {
-    "ideas": 6.0,
-    "development": 10.0,
-    "graphics": 8.0,
-    "bug-hunting": 7.0,
-    "analysis": 8.0,
-    "social": 5.0,
-    "video-tutorials": 8.0,
-    "tutorials": 8.0,
-    "copywriting": 5.0,
-    "documentation": 5.0,
-    "blog": 6.0,
-    "translations": 8.0
+    "ideas": 3.0,
+    "development": 5.0,
+    "graphics": 4.0,
+    "bug-hunting": 3.5,
+    "analysis": 4.0,
+    "social": 2.5,
+    "video-tutorials": 4.0,
+    "tutorials": 4.0,
+    "copywriting": 2.5,
+    "documentation": 2.5,
+    "blog": 3.0,
+    "translations": 4.0
 }
-TASK_REQUEST = 2.5
+TASK_REQUEST = 1.25
 
 # Review comment
 COMMENT_REVIEW = (
