@@ -119,3 +119,5 @@ TASK_REQUEST = 1.25
 COMMENT_REVIEW = (
     "Thank you for your review, @{}!\n\nSo far this week you've reviewed {} "
     "contributions. Keep up the good work!")
+
+MODERATOR_WAIT = 2
