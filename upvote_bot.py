@@ -260,17 +260,17 @@ def main():
     If voting power is > 99.75 then it votes on the oldest contribution
     currently pending and a review comment made be a moderator.
     """
-    voting_power = Account(constants.ACCOUNT).get_voting_power()
-
-    if voting_power < 99.75:
-        return
-
     previous, current, rows = get_rows()
 
     if "Pending" in [Contribution(row).review_status for row in previous]:
         review_vote(previous)
     else:
         review_vote(current)
+
+    voting_power = Account(constants.ACCOUNT).get_voting_power()
+
+    if voting_power < 99.75:
+        return
 
     response = requests.get("https://utopian.rocks/api/posts?status=pending")
     if len(response.json()) == 0:
