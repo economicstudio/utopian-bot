@@ -288,12 +288,12 @@ def main():
             # Contribution found in spreadsheet
             if row.url == contribution["url"]:
                 post = Comment(row.url, steem_instance=constants.STEEM)
-                if post.time_elapsed() > timedelta(hours=constants.MIN_AGE):
-                    if row.staff_pick.lower() == "yes":
-                        vote_update(row, True)
-                    else:
-                        vote_update(row)
-                    return
+                # if post.time_elapsed() > timedelta(hours=constants.MIN_AGE):
+                if row.staff_pick.lower() == "yes":
+                    vote_update(row, True)
+                else:
+                    vote_update(row)
+                return
 
 if __name__ == '__main__':
     main()
