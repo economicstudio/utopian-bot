@@ -86,7 +86,7 @@ COMMENT_STAFF_PICK = (
 COMMENT_FOOTER = (
     "We’re already looking forward to your next {}!\n\n"
     "**Get higher incentives and support Utopian.io!**\n Simply set "
-    "@utopian-io as a 5% (or higher) payout beneficiary on your contribution "
+    "@utopian.pay as a 5% (or higher) payout beneficiary on your contribution "
     "post (via [SteemPlus](https://chrome.google.com/webstore/detail/steemplus"
     "/mjbkjgcplmaneajhcbegoffkedeankaj?hl=en) or [Steeditor](https://steeditor"
     ".app)).\n\n**Want to chat? Join us on Discord "
