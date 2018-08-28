@@ -87,7 +87,9 @@ COMMENT_FOOTER = (
     "We’re already looking forward to your next {}!\n\n"
     "**Get higher incentives and support Utopian.io!**\n Simply set "
     "@utopian-io as a 5% (or higher) payout beneficiary on your contribution "
-    "post (via SteemPlus or Steeditor).\n\n**Want to chat? Join us on Discord "
+    "post (via [SteemPlus](https://chrome.google.com/webstore/detail/steemplus"
+    "/mjbkjgcplmaneajhcbegoffkedeankaj?hl=en) or [Steeditor](https://steeditor"
+    ".app)).\n\n**Want to chat? Join us on Discord "
     "https://discord.gg/h52nFrV.**\n\n<a href='https://steemconnect.com/sign/"
     "account-witness-vote?witness=utopian-io&approve=1'>Vote for Utopian "
     "Witness!</a>")
