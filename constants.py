@@ -50,20 +50,20 @@ CURRENT_REVIEWED = SHEET.worksheet(TITLE_CURRENT)
 
 # Max votes per category
 MAX_VOTE = {
-    "ideas": 20.0,
-    "development": 55.0,
-    "bug-hunting": 13.0,
-    "translations": 35.0,
-    "graphics": 40.0,
-    "analysis": 45.0,
-    "social": 30.0,
-    "documentation": 30.0,
-    "tutorials": 30.0,
-    "video-tutorials": 35.0,
-    "copywriting": 30.0,
-    "blog": 30.0,
+    "ideas": 30.0,
+    "development": 70.0,
+    "bug-hunting": 20.0,
+    "translations": 55.0,
+    "graphics": 60.0,
+    "analysis": 65.0,
+    "social": 40.0,
+    "documentation": 40.0,
+    "tutorials": 40.0,
+    "video-tutorials": 55.0,
+    "copywriting": 40.0,
+    "blog": 40.0,
 }
-MAX_TASK_REQUEST = 6.0
+MAX_TASK_REQUEST = 10.0
 
 # Beneficiaries
 DAVINCI_BENEFICIARY = {
@@ -76,7 +76,7 @@ UTOPIAN_BENEFICIARY = {
 }
 
 # Comment text
-COMMENT_HEADER = "Hey @{}\n **Thanks for contributing on Utopian**.\n"
+COMMENT_HEADER = "Hey, @{}!\n\n**Thanks for contributing on Utopian**.\n"
 
 COMMENT_STAFF_PICK = (
     "Congratulations! Your contribution was Staff Picked to receive a maximum "
@@ -84,10 +84,13 @@ COMMENT_STAFF_PICK = (
     "the project and the open source community.\n\n")
 
 COMMENT_FOOTER = (
-    "We’re already looking forward to your next {}!\n\n**Want to chat? Join "
-    "us on Discord https://discord.gg/h52nFrV.**\n\n<a href='https://steemconn" 
-    "ect.com/sign/account-witness-vote?witness=utopian-io&approve=1'>Vote for "
-    "Utopian Witness!</a>")
+    "We’re already looking forward to your next {}!\n\n"
+    "**Get higher incentives and support Utopian.io!**\n Simply set "
+    "@utopian-io as a 5% (or higher) payout beneficiary on your contribution "
+    "post (via SteemPlus or Steeditor).\n\n**Want to chat? Join us on Discord "
+    "https://discord.gg/h52nFrV.**\n\n<a href='https://steemconnect.com/sign/"
+    "account-witness-vote?witness=utopian-io&approve=1'>Vote for Utopian "
+    "Witness!</a>")
 
 COMMENT_UNVOTE = (
     "Hey @{}, your contribution was unvoted because we found out that it did "

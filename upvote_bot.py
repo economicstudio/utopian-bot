@@ -1,17 +1,18 @@
+import time
+from datetime import timedelta
+
+import requests
 from beem.account import Account
 from beem.comment import Comment
-from contribution import Contribution
-from datetime import timedelta
 from dateutil.parser import parse
+
 import constants
-import requests
-import time
+from contribution import Contribution
 
 
 def bot_comment(post, category, staff_picked=False):
-    """
-    Comments on the given post. Content changes depending on the category and
-    if the post was staff picked or not.
+    """Comments on the given post. Content changes depending on the category
+    and if the post was staff picked or not.
     """
     if "task" in category:
         contribution = "task request"
@@ -33,37 +34,32 @@ def bot_comment(post, category, staff_picked=False):
 
 
 def valid_age(post):
-    """
-    Checks if post is within last twelve hours before payout.
-    """
+    """Checks if post is within last twelve hours before payout."""
     if post.time_elapsed() > timedelta(hours=156):
         return False
     return True
 
 
 def valid_translation(post):
-    """
-    Checks if a translation has the correct beneficiaries set.
-    """
+    """Checks if a translation has the correct beneficiaries set."""
     if (constants.DAVINCI_BENEFICIARY in post.json()["beneficiaries"] and
-        constants.UTOPIAN_BENEFICIARY in post.json()["beneficiaries"]):
+            constants.UTOPIAN_BENEFICIARY in post.json()["beneficiaries"]):
         return True
     return False
 
 
 def beneficiary(post):
-    """
-    Checks if utopian.pay set as 5% beneficiary
-    """
-    if (constants.UTOPIAN_BENEFICIARY in post.json()["beneficiaries"]):
-        return True
+    """Checks if utopian.pay set as >= 5% beneficiary."""
+    for beneficiary in post.json()["beneficiaries"]:
+        if beneficiary["account"] == "utopian.pay":
+            weight = beneficiary["weight"]
+            if weight >= 500:
+                return True
     return False
 
 
 def update_sheet(row, vote_status, contribution=True):
-    """
-    Updates the row in one of the eligible worksheets.
-    """
+    """Updates the row in one of the eligible worksheets."""
     row = list(row.__dict__.values())
     previous, current, _ = get_rows()
 
@@ -84,9 +80,7 @@ def update_sheet(row, vote_status, contribution=True):
 
 
 def max_weight(category):
-    """
-    Returns the max voting percentage of the given category.
-    """
+    """Returns the max voting percentage of the given category."""
     try:
         weight = constants.MAX_VOTE[category]
     except KeyError:
@@ -95,17 +89,14 @@ def max_weight(category):
 
 
 def update_weight(weight):
-    """
-    Updates the voting percentage if beneficiaries utopian.pay set.
-    """
+    """Updates the voting percentage if beneficiaries utopian.pay set."""
     weight = float(weight)
     utopian_weight = constants.UTOPIAN_BENEFICIARY["weight"]
-    return weight + 0.1 * weight + utopian_weight / 100.0 + 1.0
+    return weight + 0.2 * weight + utopian_weight / 100.0 + 1.0
 
 
 def vote_update(row, staff_picked=False):
-    """
-    Upvotes the highest priority contribution and updates the spreadsheet.
+    """Upvotes the highest priority contribution and updates the spreadsheet.
     """
     url = row.url
     category = row.category
@@ -165,9 +156,7 @@ def vote_update(row, staff_picked=False):
 
 
 def get_rows():
-    """
-    Return all the rows in the most recent two review worksheets.
-    """
+    """Return all the rows in the most recent two review worksheets."""
     previous = constants.PREVIOUS_REVIEWED.get_all_values()
     current = constants.CURRENT_REVIEWED.get_all_values()
     rows = previous[1:] + current[1:]
@@ -175,8 +164,7 @@ def get_rows():
 
 
 def points_to_weight(account, points):
-    """
-    Returns the voting weight needed for a vote worth the points equivalence
+    """Returns the voting weight needed for a vote worth the points equivalence
     in SBD.
     """
     max_SBD = account.get_voting_value_SBD()
@@ -184,18 +172,15 @@ def points_to_weight(account, points):
 
 
 def valid_comment(comment):
-    """
-    Returns True if comment older than 48 hours.
-    """
+    """Returns True if comment older than 48 hours."""
     if comment.time_elapsed() > timedelta(hours=constants.MODERATOR_WAIT):
         return True
     return False
 
 
 def handle_comment(contribution, review_count):
-    """
-    Finds the moderator's comment in response to the contribution then upvotes
-    and replies to it.
+    """Finds the moderator's comment in response to the contribution then
+    upvotes and replies to it.
     """
     post = Comment(contribution.url)
     for comment in post.get_replies():
@@ -235,8 +220,8 @@ def handle_comment(contribution, review_count):
 
 
 def review_vote(contributions):
-    """
-    Finds the first review comment waiting to be upvoted and tries upvoting it.
+    """Finds the first review comment waiting to be upvoted and tries upvoting
+    it.
     """
     moderators = []
     for row in contributions:
@@ -256,8 +241,7 @@ def review_vote(contributions):
 
 
 def main():
-    """
-    If voting power is > 99.75 then it votes on the oldest contribution
+    """If voting power is > 99.75 then it votes on the oldest contribution
     currently pending and a review comment made be a moderator.
     """
     voting_power = Account(constants.ACCOUNT).get_voting_power()
