@@ -50,20 +50,20 @@ CURRENT_REVIEWED = SHEET.worksheet(TITLE_CURRENT)
 
 # Max votes per category
 MAX_VOTE = {
-    "ideas": 30.0,
-    "development": 70.0,
-    "bug-hunting": 20.0,
-    "translations": 55.0,
-    "graphics": 60.0,
-    "analysis": 65.0,
-    "social": 40.0,
-    "documentation": 40.0,
-    "tutorials": 40.0,
-    "video-tutorials": 55.0,
-    "copywriting": 40.0,
-    "blog": 40.0,
+    "ideas": 20.0,
+    "development": 55.0,
+    "bug-hunting": 13.0,
+    "translations": 35.0,
+    "graphics": 40.0,
+    "analysis": 45.0,
+    "social": 30.0,
+    "documentation": 30.0,
+    "tutorials": 30.0,
+    "video-tutorials": 35.0,
+    "copywriting": 30.0,
+    "blog": 30.0,
 }
-MAX_TASK_REQUEST = 10.0
+MAX_TASK_REQUEST = 6.0
 
 # Beneficiaries
 DAVINCI_BENEFICIARY = {
@@ -105,24 +105,24 @@ COMMENT_PATTERN = "Chat with us on [Discord]"
 
 # Category points
 CATEGORY_POINTS = {
-    "ideas": 3.0,
-    "development": 5.0,
-    "graphics": 4.0,
-    "bug-hunting": 3.5,
-    "analysis": 4.0,
-    "social": 2.5,
-    "video-tutorials": 4.0,
-    "tutorials": 4.0,
-    "copywriting": 2.5,
-    "documentation": 2.5,
-    "blog": 3.0,
-    "translations": 4.0
+    "ideas": 6.0,
+    "development": 10.0,
+    "graphics": 8.0,
+    "bug-hunting": 7.0,
+    "analysis": 8.0,
+    "social": 5.0,
+    "video-tutorials": 8.0,
+    "tutorials": 8.0,
+    "copywriting": 5.0,
+    "documentation": 5.0,
+    "blog": 6.0,
+    "translations": 8.0
 }
-TASK_REQUEST = 1.25
+
 
 # Review comment
 COMMENT_REVIEW = (
     "Thank you for your review, @{}!\n\nSo far this week you've reviewed {} "
     "contributions. Keep up the good work!")
 
-MODERATOR_WAIT = 2
+MODERATOR_WAIT = 48
