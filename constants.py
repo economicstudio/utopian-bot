@@ -65,6 +65,10 @@ MAX_VOTE = {
 }
 MAX_TASK_REQUEST = 6.0
 
+# VIPO
+VIPO_SHEET = SHEET.worksheet("VIPO")
+VIPO = [vipo.strip() for vipo in VIPO_SHEET.col_values(1)[1:]]
+
 # Beneficiaries
 DAVINCI_BENEFICIARY = {
     "account": "davinci.pay",

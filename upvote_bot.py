@@ -79,12 +79,15 @@ def update_sheet(row, vote_status, contribution=True):
         current_reviewed.update_cell(row_index, column_index, vote_status)
 
 
-def max_weight(category):
+def max_weight(category, vipo=False):
     """Returns the max voting percentage of the given category."""
     try:
         weight = constants.MAX_VOTE[category]
     except KeyError:
         weight = constants.MAX_TASK_REQUEST
+
+    if vipo:
+        return weight * 1.2
     return weight
 
 
@@ -101,15 +104,20 @@ def vote_update(row, staff_picked=False):
     url = row.url
     category = row.category
     account = Account(constants.ACCOUNT)
-
-    # Check if post was staff picked
-    if staff_picked:
-        weight = max_weight(category)
-    else:
-        weight = float(row.weight)
+    vipo = constants.VIPO
 
     try:
         post = Comment(url, steem_instance=constants.STEEM)
+        if post.author in vipo:
+            category_max = max_weight(category, True)
+        else:
+            category_max = max_weight(category)
+
+        # Check if post was staff picked
+        if staff_picked:
+            weight = category_max
+        else:
+            weight = float(row.weight)
 
         # If in last twelve hours before payout don't vote
         if not valid_age(post):
@@ -138,7 +146,7 @@ def vote_update(row, staff_picked=False):
             return
 
         # Voting % higher than possible
-        if weight > max_weight(category):
+        if weight > category_max:
             constants.LOGGER.error(f"Voting % exceeds max: {url}")
             update_sheet(row, "Voting percentage exceeds max!")
             return
