@@ -122,7 +122,7 @@ CATEGORY_POINTS = {
     "blog": 6.0,
     "translations": 8.0
 }
-
+TASK_REQUEST = 2.5
 
 # Review comment
 COMMENT_REVIEW = (
