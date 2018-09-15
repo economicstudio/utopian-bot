@@ -1,5 +1,5 @@
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import requests
 from beem.account import Account
@@ -245,32 +245,14 @@ def review_vote(contributions):
             except Exception as error:
                 constants.LOGGER.error(f"Review vote error: {error}")
 
+            age_limit = datetime.now() - timedelta(days=5)
+            if parse(contribution.review_date) < age_limit:
+                continue
             break
 
 
-def main():
-    """If voting power is > 99.75 then it votes on the oldest contribution
-    currently pending and a review comment made be a moderator.
-    """
-    voting_power = Account(constants.ACCOUNT).get_voting_power()
-
-    if voting_power < 99.75:
-        return
-
-    previous, current, rows = get_rows()
-
-    if "Pending" in [Contribution(row).review_status for row in previous]:
-        review_vote(previous)
-    else:
-        review_vote(current)
-
-    response = requests.get("https://utopian.rocks/api/posts?status=pending")
-    if len(response.json()) == 0:
-        constants.LOGGER.info(f"No pending contributions found in the queue.")
-        return
-
-    pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
-
+def upvote_contribution(pending, rows):
+    """Upvotes the oldest pending contribution found."""
     for contribution in pending:
         for row in rows:
             row = Contribution(row)
@@ -286,6 +268,32 @@ def main():
                 else:
                     vote_update(row)
                 return
+
+
+def main():
+    """If voting power is > 99.75 then it votes on the oldest contribution
+    currently pending and a review comment made be a moderator.
+    """
+    voting_power = Account(constants.ACCOUNT).get_voting_power()
+
+    if voting_power < 99.75:
+        return
+
+    previous, current, rows = get_rows()
+
+    response = requests.get("https://utopian.rocks/api/posts?status=pending")
+    if len(response.json()) == 0:
+        constants.LOGGER.info(f"No pending contributions found in the queue.")
+        return
+
+    pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
+
+    upvote_contribution(pending, rows)
+
+    if "Pending" in [Contribution(row).review_status for row in previous]:
+        review_vote(previous)
+    else:
+        review_vote(current)
 
 if __name__ == '__main__':
     main()

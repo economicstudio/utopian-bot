@@ -120,7 +120,8 @@ CATEGORY_POINTS = {
     "copywriting": 5.0,
     "documentation": 5.0,
     "blog": 6.0,
-    "translations": 8.0
+    "translations": 8.0,
+    "iamutopian": 6.0
 }
 TASK_REQUEST = 2.5
 
