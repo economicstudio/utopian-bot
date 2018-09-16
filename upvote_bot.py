@@ -194,7 +194,7 @@ def handle_comment(contribution, review_count):
     for comment in post.get_replies():
         if comment.author == contribution.moderator:
             if not valid_comment(comment):
-                return False
+                return
 
             account = Account(constants.ACCOUNT)
 
@@ -213,18 +213,18 @@ def handle_comment(contribution, review_count):
                         review_count
                     ),
                     author=constants.ACCOUNT)
+                update_sheet(contribution, "Yes", False)
+                time.sleep(20)
                 authorperm = comment.authorperm
                 constants.LOGGER.info(
                     f"Upvoting comment: {authorperm} with weight {weight}%")
-                return True
             except Exception as error:
                 constants.LOGGER.error(f"Handle comment error: {error}")
-                return False
 
             break
     constants.LOGGER.error(
         f"No moderator comment found under {contribution.url}")
-    return True
+    return
 
 
 def review_vote(contributions):
@@ -238,10 +238,7 @@ def review_vote(contributions):
         if contribution.review_status.lower() == "pending":
             try:
                 review_count = moderators.count(contribution.moderator)
-                is_handled = handle_comment(contribution, review_count)
-                if is_handled:
-                    update_sheet(contribution, "Yes", False)
-                    time.sleep(20)
+                handle_comment(contribution, review_count)
             except Exception as error:
                 constants.LOGGER.error(f"Review vote error: {error}")
 
