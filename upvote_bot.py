@@ -264,7 +264,14 @@ def upvote_contribution(pending, rows):
                     vote_update(row, True)
                 else:
                     vote_update(row)
-                return
+
+                timestamp = contribution["created"]["$date"] / 1000.0
+                created = datetime.utcfromtimestamp(timestamp)
+                age_limit = datetime.now() - timedelta(days=6)
+                if created < age_limit:
+                    break
+                else:
+                    return
 
 
 def main():
