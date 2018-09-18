@@ -159,6 +159,7 @@ def vote_update(row, staff_picked=False):
         post.vote(weight, account=account)
         bot_comment(post, category, staff_picked)
         update_sheet(row, "Yes")
+        time.sleep(20)
     except Exception as vote_error:
         constants.LOGGER.error(vote_error)
 
