@@ -281,7 +281,7 @@ def main():
     """
     voting_power = Account(constants.ACCOUNT).get_voting_power()
 
-    if voting_power < 97.75:
+    if voting_power < 99.75:
         return
 
     previous, current, rows = get_rows()
