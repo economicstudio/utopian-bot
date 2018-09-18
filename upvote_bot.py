@@ -264,7 +264,12 @@ def upvote_contribution(pending, rows):
                     vote_update(row, True)
                 else:
                     vote_update(row)
-                return
+
+                age_limit = datetime.now() - timedelta(days=6)
+                if parse(row.created) < age_limit:
+                    break
+                else:
+                    return
 
 
 def main():
