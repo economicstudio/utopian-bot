@@ -207,13 +207,17 @@ def handle_comment(contribution, review_count):
             weight = points_to_weight(account, points)
 
             try:
-                comment.vote(weight, account=account)
-                comment.reply(
-                    constants.COMMENT_REVIEW.format(
-                        comment.author,
-                        review_count
-                    ),
-                    author=constants.ACCOUNT)
+                voters = [v.voter for v in comment.get_votes()]
+                if constants.ACCOUNT not in voters:
+                    comment.vote(weight, account=account)
+                repliers = [c.author for c in comment.get_replies()]
+                if constants.ACCOUNT not in repliers:
+                    comment.reply(
+                        constants.COMMENT_REVIEW.format(
+                            comment.author,
+                            review_count
+                        ),
+                        author=constants.ACCOUNT)
                 update_sheet(contribution, "Yes", False)
                 time.sleep(20)
                 authorperm = comment.authorperm
