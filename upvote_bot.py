@@ -280,12 +280,14 @@ def upvote_contribution(pending, rows):
 
 
 def main():
-    """If voting power is > 99.75 then it votes on the oldest contribution
-    currently pending and a review comment made be a moderator.
+    """If voting power is > 97.0 then it votes on the oldest contribution
+    currently pending and a review comment made be a moderator. If there are
+    multiple contributions older than 6 days, then these are all voted on. The
+    same is done for comments older than 5 days.
     """
     voting_power = Account(constants.ACCOUNT).get_voting_power()
 
-    if voting_power < 99.75:
+    if voting_power < 97.0:
         return
 
     previous, current, rows = get_rows()
