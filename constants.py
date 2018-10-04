@@ -62,6 +62,7 @@ MAX_VOTE = {
     "video-tutorials": 35.0,
     "copywriting": 30.0,
     "blog": 30.0,
+    "anti-abuse": 50.0,
 }
 MAX_TASK_REQUEST = 6.0
 
@@ -121,7 +122,8 @@ CATEGORY_POINTS = {
     "documentation": 5.0,
     "blog": 6.0,
     "translations": 8.0,
-    "iamutopian": 6.0
+    "iamutopian": 6.0,
+    "anti-abuse": 6.0,
 }
 TASK_REQUEST = 2.5
 
