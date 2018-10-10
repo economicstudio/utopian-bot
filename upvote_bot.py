@@ -42,10 +42,19 @@ def valid_age(post):
 
 def valid_translation(post):
     """Checks if a translation has the correct beneficiaries set."""
-    if (constants.DAVINCI_BENEFICIARY in post.json()["beneficiaries"] and
-            constants.UTOPIAN_BENEFICIARY in post.json()["beneficiaries"]):
-        return True
-    return False
+    beneficiaries = []
+    for beneficiary in post.json()["beneficiaries"]:
+        if beneficiary["account"] == "utopian.pay":
+            weight = beneficiary["weight"]
+            if weight >= 500:
+                beneficiaries.append(True)
+
+        if beneficiary["account"] == "davinci.pay":
+            weight = beneficiary["weight"]
+            if weight == 1000:
+                beneficiaries.append(True)
+
+    return all(beneficiaries)
 
 
 def beneficiary(post):
@@ -161,6 +170,7 @@ def vote_update(row, staff_picked=False):
         update_sheet(row, "Yes")
         time.sleep(20)
     except Exception as vote_error:
+        print("Vote error: ", vote_error)
         constants.LOGGER.error(vote_error)
 
 
