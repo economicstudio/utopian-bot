@@ -307,7 +307,7 @@ def main():
     pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
 
     if voting_power > 99.75 or time_threshold_met(pending[0]):
-        pending = pending[0]
+        pending = [pending[0]]
     else:
         return
 
