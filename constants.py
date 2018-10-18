@@ -134,4 +134,4 @@ COMMENT_REVIEW = (
 
 MODERATOR_WAIT = 48
 
-AGE_LIMIT = datetime.now() - timedelta(hours=155)
+AGE_LIMIT = timedelta(days=6, hours=11)

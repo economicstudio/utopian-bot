@@ -291,8 +291,8 @@ def time_threshold_met(post):
     """Returns True if the given post is within 1 hour of expiring, otherwise
     False.
     """
-    created = datetime.utcfromtimestamp(post["created"]["$date"] / 1000.0)
-    if (created - constants.AGE_LIMIT).seconds / 3600 <= 1.0:
+    post = Comment(post["url"])
+    if post.time_elapsed() > AGE_LIMIT:
         return True
     return False
 
@@ -300,15 +300,16 @@ def time_threshold_met(post):
 def main():
     """If voting power is > 99.75 or the oldest contribution is within 1 hour
     of expiring then it votes on the oldest contribution currently pending and
-    all review comment made by moderators older than 5 days.
+    all review comments made by moderators older than 5 days.
     """
     voting_power = Account(constants.ACCOUNT).get_voting_power()
     response = requests.get("https://utopian.rocks/api/posts?status=pending")
-    pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
 
     if len(response.json()) == 0:
         constants.LOGGER.info(f"No pending contributions found in the queue.")
         return
+
+    pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
 
     if voting_power > 99.75 or time_threshold_met(pending[0]):
         pending = pending[0]
