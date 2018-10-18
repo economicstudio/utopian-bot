@@ -128,12 +128,6 @@ def vote_update(row, staff_picked=False):
         else:
             weight = float(row.weight)
 
-        # If in last twelve hours before payout don't vote
-        if not valid_age(post):
-            constants.LOGGER.error(f"In last 12 hours before payout: {url}")
-            update_sheet(row, "EXPIRED")
-            return
-
         # Already voted on
         votes = [vote["voter"] for vote in post.json()["active_votes"]]
         if constants.ACCOUNT in votes:
@@ -168,8 +162,9 @@ def vote_update(row, staff_picked=False):
         post.vote(weight, account=account)
         bot_comment(post, category, staff_picked)
         update_sheet(row, "Yes")
-        time.sleep(20)
+        time.sleep(3)
     except Exception as vote_error:
+        update_sheet(row, "Something went wrong!")
         constants.LOGGER.error(vote_error)
 
 
@@ -228,7 +223,7 @@ def handle_comment(contribution, review_count):
                         ),
                         author=constants.ACCOUNT)
                 update_sheet(contribution, "Yes", False)
-                time.sleep(20)
+                time.sleep(3)
                 authorperm = comment.authorperm
                 constants.LOGGER.info(
                     f"Upvoting comment: {authorperm} with weight {weight}%")
