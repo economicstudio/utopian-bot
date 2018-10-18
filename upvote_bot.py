@@ -287,7 +287,7 @@ def time_threshold_met(post):
     False.
     """
     post = Comment(post["url"])
-    if post.time_elapsed() > AGE_LIMIT:
+    if post.time_elapsed() > constants.AGE_LIMIT:
         return True
     return False
 
