@@ -170,7 +170,6 @@ def vote_update(row, staff_picked=False):
         update_sheet(row, "Yes")
         time.sleep(20)
     except Exception as vote_error:
-        print("Vote error: ", vote_error)
         constants.LOGGER.error(vote_error)
 
 
@@ -274,7 +273,6 @@ def upvote_contribution(pending, rows):
             # Contribution found in spreadsheet
             if row.url == contribution["url"]:
                 post = Comment(row.url, steem_instance=constants.STEEM)
-                # if post.time_elapsed() > timedelta(hours=constants.MIN_AGE):
                 if row.staff_pick.lower() == "yes":
                     vote_update(row, True)
                 else:
@@ -289,26 +287,35 @@ def upvote_contribution(pending, rows):
                     return
 
 
+def time_threshold_met(post):
+    """Returns True if the given post is within 1 hour of expiring, otherwise
+    False.
+    """
+    created = datetime.utcfromtimestamp(post["created"]["$date"] / 1000.0)
+    if (created - constants.AGE_LIMIT).seconds / 3600 <= 1.0:
+        return True
+    return False
+
+
 def main():
-    """If voting power is > 99.75 then it votes on the oldest contribution
-    currently pending and a review comment made be a moderator. If there are
-    multiple contributions older than 6 days, then these are all voted on. The
-    same is done for comments older than 5 days.
+    """If voting power is > 99.75 or the oldest contribution is within 1 hour
+    of expiring then it votes on the oldest contribution currently pending and
+    all review comment made by moderators older than 5 days.
     """
     voting_power = Account(constants.ACCOUNT).get_voting_power()
-
-    if voting_power < 99.75:
-        return
-
-    previous, current, rows = get_rows()
-
     response = requests.get("https://utopian.rocks/api/posts?status=pending")
+    pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
+
     if len(response.json()) == 0:
         constants.LOGGER.info(f"No pending contributions found in the queue.")
         return
 
-    pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
+    if voting_power > 99.75 or time_threshold_met(pending[0]):
+        pending = pending[0]
+    else:
+        return
 
+    previous, current, rows = get_rows()
     upvote_contribution(pending, rows)
 
     if "Pending" in [Contribution(row).review_status for row in previous]:

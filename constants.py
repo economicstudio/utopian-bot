@@ -133,3 +133,5 @@ COMMENT_REVIEW = (
     "contributions. Keep up the good work!")
 
 MODERATOR_WAIT = 48
+
+AGE_LIMIT = datetime.now() - timedelta(hours=155)
