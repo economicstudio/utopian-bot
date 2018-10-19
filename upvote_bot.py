@@ -313,15 +313,17 @@ def main():
     pending = sorted(response.json(), key=lambda x: x["created"]["$date"])
 
     if voting_power > 99.75 or time_threshold_met(pending[0]):
-        previous, current, rows = get_rows()
-        upvote_contribution(pending, rows)
-
-        if "Pending" in [Contribution(row).review_status for row in previous]:
-            review_vote(previous)
-        else:
-            review_vote(current)
+        pending = [pending[0]]
     else:
         return
+
+    previous, current, rows = get_rows()
+    upvote_contribution(pending, rows)
+
+    if "Pending" in [Contribution(row).review_status for row in previous]:
+        review_vote(previous)
+    else:
+        review_vote(current)
 
 if __name__ == '__main__':
     main()
