@@ -128,6 +128,12 @@ def vote_update(row, staff_picked=False):
         else:
             weight = float(row.weight)
 
+        # If in last twelve hours before payout don't vote
+        if not valid_age(post):
+            constants.LOGGER.error(f"In last 12 hours before payout: {url}")
+            update_sheet(row, "EXPIRED")
+            return
+
         # Already voted on
         votes = [vote["voter"] for vote in post.json()["active_votes"]]
         if constants.ACCOUNT in votes:
