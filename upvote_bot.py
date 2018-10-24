@@ -159,7 +159,7 @@ def vote_update(row, staff_picked=False):
             weight = update_weight(weight)
 
         constants.LOGGER.info(f"Voting on {post.authorperm} with {weight}%")
-        post.vote(weight, account=account)
+        post.vote(weight * 0.8, account=account)
         bot_comment(post, category, staff_picked)
         update_sheet(row, "Yes")
         time.sleep(3)
