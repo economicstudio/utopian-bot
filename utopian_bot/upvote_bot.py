@@ -37,8 +37,6 @@ def comment_weights_table(comment_weights):
     table.align["Category"] = "l"
     table.align["Weight"] = "r"
 
-    print(table.get_html_string())
-
     LOGGER.info(f"\n{table}")
 
 
@@ -86,8 +84,6 @@ def voting_power_usage_table(comment_vp, contribution_vp):
 
     table.align["Type"] = "l"
     table.align["Usage"] = "r"
-
-    print(table.get_html_string())
 
     LOGGER.info(f"\n{table}")
 
@@ -148,7 +144,6 @@ def category_share_table(category_share):
     table.add_row(["all", f"{total_share:.2f}%"])
     table.align["Category"] = "l"
     table.align["Share"] = "r"
-    print(table.get_html_string())
 
     LOGGER.info(f"\n{table}")
 
@@ -186,7 +181,6 @@ def category_usage_table(category_usage):
 
     table.align["Category"] = "l"
     table.align["Usage"] = "r"
-    print(table.get_html_string())
 
     LOGGER.info(f"\n{table}")
 
@@ -236,7 +230,6 @@ def new_share_table(new_share):
 
     table.align["Category"] = "l"
     table.align["Share"] = "r"
-    print(table.get_html_string())
 
     LOGGER.info(f"\n{table}")
 
@@ -327,8 +320,6 @@ def reward_scaler_table(category_scaling):
 
     table.align["Category"] = "l"
     table.align["Usage"] = "r"
-
-    print(table.get_html_string())
 
     LOGGER.info(f"\n{table}")
 
