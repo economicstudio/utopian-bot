@@ -37,6 +37,8 @@ def comment_weights_table(comment_weights):
     table.align["Category"] = "l"
     table.align["Weight"] = "r"
 
+    print(table.get_html_string())
+
     LOGGER.info(f"\n{table}")
 
 
@@ -84,6 +86,8 @@ def voting_power_usage_table(comment_vp, contribution_vp):
 
     table.align["Type"] = "l"
     table.align["Usage"] = "r"
+
+    print(table.get_html_string())
 
     LOGGER.info(f"\n{table}")
 
@@ -144,6 +148,8 @@ def category_share_table(category_share):
     table.add_row(["all", f"{total_share:.2f}%"])
     table.align["Category"] = "l"
     table.align["Share"] = "r"
+    print(table.get_html_string())
+
     LOGGER.info(f"\n{table}")
 
 
@@ -180,6 +186,8 @@ def category_usage_table(category_usage):
 
     table.align["Category"] = "l"
     table.align["Usage"] = "r"
+    print(table.get_html_string())
+
     LOGGER.info(f"\n{table}")
 
 
@@ -228,6 +236,8 @@ def new_share_table(new_share):
 
     table.align["Category"] = "l"
     table.align["Share"] = "r"
+    print(table.get_html_string())
+
     LOGGER.info(f"\n{table}")
 
 
@@ -317,6 +327,8 @@ def reward_scaler_table(category_scaling):
 
     table.align["Category"] = "l"
     table.align["Usage"] = "r"
+
+    print(table.get_html_string())
 
     LOGGER.info(f"\n{table}")
 
@@ -697,7 +709,7 @@ def trail_multiplier(contributions, voting_power):
     return multiplier
 
 
-def handle_trail(contributions, voting_power, multiplier=1.0):
+def handle_trail(contributions, voting_power):
     """Upvotes and replies to all contributions in the trail."""
     database = DatabaseHandler.get_instance()
 
@@ -753,15 +765,14 @@ def init_trail(voting_power):
     maker_contributions = trail_contributions("steemmakers")
     contributions = sorted(stem_contributions + maker_contributions,
                            key=lambda x: x["voting_weight"])
-    multiplier = trail_multiplier(contributions, voting_power)
-    return contributions, multiplier
+    return contributions
 
 
 def main():
     voting_power = account.get_voting_power()
 
-    if voting_power < 100.0:
-        return
+    # if voting_power < 100.0:
+    #     return
 
     LOGGER.info("STARTING BATCH VOTE")
     comments = requests.get(COMMENT_BATCH).json()
@@ -771,12 +782,12 @@ def main():
                            key=lambda x: x["voting_weight"], reverse=True)
     category_share = init_contributions(contributions, comment_usage)
 
-    voting_power = handle_comments(comments, comment_weights, voting_power)
-    voting_power = handle_contributions(contributions, category_share,
-                                        voting_power)
+    # voting_power = handle_comments(comments, comment_weights, voting_power)
+    # voting_power = handle_contributions(contributions, category_share,
+    #                                     voting_power)
 
-    trail_contributions, trail_multiplier = init_trail(voting_power)
-    handle_trail(trail_contributions, voting_power, trail_multiplier)
+    trail_contributions = init_trail(voting_power)
+    handle_trail(trail_contributions, voting_power)
 
 if __name__ == '__main__':
     main()
