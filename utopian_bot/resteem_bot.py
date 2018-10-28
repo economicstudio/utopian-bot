@@ -53,9 +53,8 @@ current_reviewed = sheet.worksheet(title_current)
 
 
 def main():
-    """
-    Gets all task requests that are above the minimum score 
-    and resteems them if they haven't been resteemed yet.
+    """Gets all task requests that are above the minimum score and resteems
+    them if they haven't been resteemed yet.
     """
     # Get data from both the current sheet and previous one
     previous = previous_reviewed.get_all_values()
