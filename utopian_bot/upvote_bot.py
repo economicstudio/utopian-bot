@@ -765,7 +765,7 @@ def main():
     if voting_power < 100.0:
         return
 
-    LOGGER.info("STARTING BATCH VOTE")
+    LOGGER.info("STARTED BATCH VOTE")
     comments = requests.get(COMMENT_BATCH).json()
     comment_weights, comment_usage = init_comments(comments)
 
@@ -779,6 +779,7 @@ def main():
 
     trail_contributions = init_trail(voting_power)
     handle_trail(trail_contributions, voting_power)
+    LOGGER.info("FINISHED BATCH VOTE")
 
 if __name__ == '__main__':
     main()
