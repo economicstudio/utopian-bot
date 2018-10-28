@@ -226,7 +226,7 @@ WATSON_LABELS = [
 TRAIL_ACCOUNTS = {
     "steemstem": {
         "check_context": False,
-        "whitelisted": True,
+        "self_vote_allowed": True,
         "weight_multiplier": 0.40,
         "max_weight": 4000,
         "comment": ("#### Hi @{}!\n\nYour post was upvoted by Utopian.io in "
@@ -243,7 +243,7 @@ TRAIL_ACCOUNTS = {
     },
     "steemmakers": {
         "check_context": True,
-        "whitelisted": False,
+        "self_vote_allowed": False,
         "weight_multiplier": 0.05,
         "max_weight": 500,
         "comment": ("#### Hi @{}!\n\nYour post was upvoted by Utopian.io in "
@@ -260,7 +260,7 @@ TRAIL_ACCOUNTS = {
     },
     "msp_waves": {
         "check_context": False,
-        "whitelisted": False,
+        "self_vote_allowed": False,
         "weight_multiplier": 1.0,
         "max_weight": 5000,
         "comment": ("#### Hi @{}!\n\nYour post was upvoted by Utopian.io in "

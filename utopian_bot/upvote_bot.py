@@ -614,7 +614,7 @@ def trail_contributions(trail_name):
     weight_trigger = TRAIL_ACCOUNTS[trail_name]["weight_trigger"]
     weight_multiplier = TRAIL_ACCOUNTS[trail_name]["weight_multiplier"]
     max_weight = TRAIL_ACCOUNTS[trail_name]["max_weight"] / 100.0
-    whitelisted = TRAIL_ACCOUNTS[trail_name]["whitelisted"]
+    self_vote_allowed = TRAIL_ACCOUNTS[trail_name]["self_vote_allowed"]
     check_context = TRAIL_ACCOUNTS[trail_name]["check_context"]
     upvote_limit = TRAIL_ACCOUNTS[trail_name]["upvote_limit"]
     is_priority = TRAIL_ACCOUNTS[trail_name]["is_priority"]
@@ -628,7 +628,7 @@ def trail_contributions(trail_name):
         voter = vote["voter"]
 
         if (weight < weight_trigger or voter != trail_name or
-                (voter == author and not whitelisted)):
+                (voter == author and not self_vote_allowed)):
             continue
 
         contribution = Comment(f"@{vote['author']}/{vote['permlink']}")
@@ -762,8 +762,8 @@ def init_trail(voting_power):
 def main():
     voting_power = account.get_voting_power()
 
-    # if voting_power < 100.0:
-    #     return
+    if voting_power < 100.0:
+        return
 
     LOGGER.info("STARTING BATCH VOTE")
     comments = requests.get(COMMENT_BATCH).json()
@@ -773,9 +773,9 @@ def main():
                            key=lambda x: x["voting_weight"], reverse=True)
     category_share = init_contributions(contributions, comment_usage)
 
-    # voting_power = handle_comments(comments, comment_weights, voting_power)
-    # voting_power = handle_contributions(contributions, category_share,
-    #                                     voting_power)
+    voting_power = handle_comments(comments, comment_weights, voting_power)
+    voting_power = handle_contributions(contributions, category_share,
+                                        voting_power)
 
     trail_contributions = init_trail(voting_power)
     handle_trail(trail_contributions, voting_power)
