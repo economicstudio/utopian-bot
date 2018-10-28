@@ -3,3 +3,5 @@ client_secret.json
 *.log
 *.json
 __pycache__/
+*.db
+expiration_bot.py
