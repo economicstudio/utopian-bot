@@ -258,7 +258,7 @@ TRAIL_ACCOUNTS = {
         "upvote_limit": 1000,
         "is_priority": False,
     },
-    "msp_waves": {
+    "mspwaves": {
         "check_context": False,
         "self_vote_allowed": False,
         "weight_multiplier": 1.0,

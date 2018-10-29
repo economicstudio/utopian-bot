@@ -752,10 +752,12 @@ def handle_trail(contributions, voting_power):
 
 def init_trail(voting_power):
     """Initialises everything needed for upvoting the trail's contributions."""
-    stem_contributions = trail_contributions("steemstem")
-    maker_contributions = trail_contributions("steemmakers")
-    contributions = sorted(stem_contributions + maker_contributions,
-                           key=lambda x: x["voting_weight"])
+    contributions = []
+
+    for trail_name in TRAIL_ACCOUNTS.keys():
+        contributions.extend(trail_contributions(trail_name))
+    contributions = sorted(contributions, key=lambda x: x["voting_weight"])
+
     return contributions
 
 
