@@ -401,7 +401,7 @@ def reply_to_contribution(contribution):
         post.reply(body, author=ACCOUNT)
         LOGGER.info(f"Replied to contribution: {contribution['url']}")
     except Exception as error:
-        LOGGER.error("Something went wrong while trying to reply to "
+        LOGGER.error("Something went wrong while trying to reply to the "
                      f"contribution: {contribution['url']}")
 
 
@@ -427,7 +427,7 @@ def update_sheet(url, vote_successful=True, is_contribution=True):
             current_reviewed.update_cell(row_index, column_index, status)
         LOGGER.info(f"Updated {update_type} in sheet: {url}")
     except Exception as error:
-        LOGGER.error(f"Something went wrong while updating {update_type}: "
+        LOGGER.error(f"Something went wrong while updating the {update_type}: "
                      f"{url} - {error}")
 
 
@@ -459,7 +459,7 @@ def vote_on_contribution(contribution):
         LOGGER.info(f"Upvoted contribution ({voting_weight:.2f}%): "
                     f"{url}")
     except Exception as error:
-        LOGGER.error("Something went wrong while upvoting contribution: "
+        LOGGER.error("Something went wrong while upvoting the contribution: "
                      f"{url} - {error}")
         return
     return True
@@ -507,7 +507,7 @@ def reply_to_comment(comment):
                           author=ACCOUNT)
             LOGGER.info(f"Replied to comment: {comment.permlink}")
         except Exception as error:
-            LOGGER.error("Something went wrong while replying to comment: "
+            LOGGER.error("Something went wrong while replying to the comment: "
                          f"{comment.permlink} - {error}")
 
 
@@ -521,7 +521,7 @@ def vote_on_comment(comment, voting_weight):
                         f"{comment.permlink}")
             return True
         except Exception as error:
-            LOGGER.error("Something went wrong while upvoting comment: "
+            LOGGER.error("Something went wrong while upvoting the comment: "
                          f"{comment.permlink} - {error}")
             pass
     return False
@@ -695,7 +695,7 @@ def trail_multiplier(contributions, voting_power):
     multiplier = np.log(desired_usage) / np.log(actual_usage)
 
     LOGGER.info("Scaling non-priority trail contributions with multiplier: "
-                f"{multipler:.1f}%")
+                f"{multiplier:.1f}%")
 
     return multiplier
 
@@ -713,12 +713,7 @@ def handle_trail(contributions, voting_power):
     for contribution in contributions:
         post = contribution["contribution"]
         trail_name = contribution["trail_name"]
-
-        if contribution["is_priority"]:
-            voting_weight = contribution["voting_weight"]
-        else:
-            voting_weight = contribution["voting_weight"] * multiplier
-
+        voting_weight = contribution["voting_weight"]
         usage = voting_weight / 100.0 * 0.02 * voting_power
 
         if voting_power - usage < 80.0:
@@ -738,7 +733,7 @@ def handle_trail(contributions, voting_power):
                         f"{post.permlink}")
         except Exception as error:
             LOGGER.error("Something went wrong while voting and replying to "
-                         f"trail contribution: {post.permlink}")
+                         f"the trail contribution: {post.permlink}")
             continue
 
         if not database.contribution_exists(post.authorperm):
@@ -750,7 +745,7 @@ def handle_trail(contributions, voting_power):
     LOGGER.info(f"Voting power after trail: {voting_power:.2f}%")
 
 
-def init_trail(voting_power):
+def init_trail():
     """Initialises everything needed for upvoting the trail's contributions."""
     contributions = []
 
@@ -779,7 +774,7 @@ def main():
     voting_power = handle_contributions(contributions, category_share,
                                         voting_power)
 
-    trail_contributions = init_trail(voting_power)
+    trail_contributions = init_trail()
     handle_trail(trail_contributions, voting_power)
     LOGGER.info("FINISHED BATCH VOTE")
 
