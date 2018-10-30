@@ -547,6 +547,11 @@ def handle_comments(comments, comment_weights, voting_power):
         url = f"{moderator}/{comment_url}"
 
         beem_comment = Comment(url)
+
+        # Sanity check
+        if beem_comment.author != moderator:
+            return
+
         voted_on = vote_on_comment(beem_comment, comment_weights[category])
 
         if voted_on:
