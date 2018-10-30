@@ -550,7 +550,7 @@ def handle_comments(comments, comment_weights, voting_power):
 
         # Sanity check
         if beem_comment.author != moderator:
-            return
+            continue
 
         voted_on = vote_on_comment(beem_comment, comment_weights[category])
 
