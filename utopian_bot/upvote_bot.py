@@ -776,7 +776,7 @@ def main():
     comment_weights, comment_usage = init_comments(comments)
 
     contributions = sorted(requests.get(CONTRIBUTION_BATCH).json(),
-                           key=lambda x: x["voting_weight"], reverse=True)
+                           key=lambda x: x["score"], reverse=True)
     category_share = init_contributions(contributions, comment_usage)
 
     voting_power = handle_comments(comments, comment_weights, voting_power)
