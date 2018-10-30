@@ -19,14 +19,14 @@ FILE_HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(FILE_HANDLER)
 
 STEEM = Steem()
-ACCOUNT = "utopian-io"
+ACCOUNT = ""
 
 SCOPE = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
     f"{DIR_PATH}/client_secret.json", SCOPE)
 CLIENT = gspread.authorize(CREDENTIALS)
-SHEET = CLIENT.open("Utopian Reviews")
+SHEET = CLIENT.open("Copy of Utopian Reviews")
 
 TODAY = date.today()
 OFFSET = (TODAY.weekday() - 3) % 7
