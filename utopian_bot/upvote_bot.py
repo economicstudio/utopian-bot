@@ -728,10 +728,12 @@ def handle_trail(contributions, voting_power):
             LOGGER.error("Voting power reached 80% while voting on the trail.")
             break
 
-        comment = TRAIL_ACCOUNTS[trail_name]["comment"].format(
-            trail_name,
-            contribution["author"],
-        )
+        try:
+            comment = TRAIL_ACCOUNTS[trail_name]["comment"].format(
+                trail_name,
+                contribution["author"])
+        except Exception:
+            comment = TRAIL_ACCOUNTS[trail_name]["comment"]
 
         try:
             voting_power -= usage
