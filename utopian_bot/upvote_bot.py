@@ -544,7 +544,7 @@ def handle_comments(comments, comment_weights, voting_power):
         contribution_url = comment["url"]
         moderator = comment["moderator"]
         comment_url = comment["comment_url"]
-        url = f"{contribution_url}#@{moderator}/{comment_url}"
+        url = f"{moderator}/{comment_url}"
 
         beem_comment = Comment(url)
         voted_on = vote_on_comment(beem_comment, comment_weights[category])
