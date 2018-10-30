@@ -15,7 +15,7 @@ from watson_developer_cloud.natural_language_understanding_v1 import (Categories
 from constants import (ACCOUNT, CATEGORY_WEIGHTING, COMMENT_BATCH,
                        COMMENT_FOOTER, COMMENT_HEADER, COMMENT_REVIEW,
                        COMMENT_STAFF_PICK, CONTRIBUTION_BATCH, LOGGER, LOGGING,
-                       MODERATION_REWARD, SHEET, STEEM, TITLE_CURRENT,
+                       MODERATION_REWARD, SHEET, STEEM, TESTING, TITLE_CURRENT,
                        TITLE_PREVIOUS, TRAIL_ACCOUNTS, VP_COMMENTS, VP_TOTAL,
                        WATSON_LABELS, WATSON_SCORE, WATSON_SERVICE)
 from database.database_handler import DatabaseHandler
