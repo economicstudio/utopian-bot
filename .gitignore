@@ -5,3 +5,4 @@ client_secret.json
 __pycache__/
 *.db
 expiration_bot.py
+constants.py
