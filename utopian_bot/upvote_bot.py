@@ -441,7 +441,7 @@ def vote_on_contribution(contribution):
     category = contribution["category"]
     post = Comment(url, steem_instance=STEEM)
 
-    voters = [vote["voter"] for vote in post.json()["active_votes"]]
+    voters = [v.voter for v in post.get_votes() if v.weight > 0]
     if ACCOUNT in voters:
         update_sheet(url, vote_successful=False)
         return
@@ -518,7 +518,7 @@ def reply_to_comment(comment):
 
 def vote_on_comment(comment, voting_weight):
     """Votes on the given comment if it hasn't already been voted on."""
-    voters = [v.voter for v in comment.get_votes()]
+    voters = [v.voter for v in comment.get_votes() if v.weight > 0]
     if ACCOUNT not in voters:
         try:
             comment.vote(voting_weight, account=account)
@@ -640,7 +640,7 @@ def trail_contributions(trail_name):
             continue
 
         contribution = Comment(f"@{vote['author']}/{vote['permlink']}")
-        voters = [v["voter"] for v in contribution.json()["active_votes"]]
+        voters = [v.voter for v in contribution.get_votes() if v.weight > 0]
 
         if ACCOUNT in voters:
             continue
