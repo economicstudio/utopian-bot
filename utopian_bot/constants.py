@@ -7,6 +7,8 @@ from beem import Steem
 from oauth2client.service_account import ServiceAccountCredentials
 from watson_developer_cloud import NaturalLanguageUnderstandingV1
 
+TESTING = True
+
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 LOGGING = True
 LOGGER = logging.getLogger("utopian-io")
@@ -19,14 +21,21 @@ FILE_HANDLER.setFormatter(FORMATTER)
 LOGGER.addHandler(FILE_HANDLER)
 
 STEEM = Steem()
-ACCOUNT = ""
+if TESTING:
+    ACCOUNT = "utopian.signup"
+else:
+    ACCOUNT = "utopian-io"
 
 SCOPE = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive"]
 CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
     f"{DIR_PATH}/client_secret.json", SCOPE)
 CLIENT = gspread.authorize(CREDENTIALS)
-SHEET = CLIENT.open("Copy of Utopian Reviews")
+
+if TESTING:
+    SHEET = CLIENT.open("Copy of Utopian Reviews")
+else:
+    SHEET = CLIENT.open("Utopian Reviews")
 
 TODAY = date.today()
 OFFSET = (TODAY.weekday() - 3) % 7

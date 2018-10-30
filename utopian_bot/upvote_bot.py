@@ -399,8 +399,9 @@ def reply_to_contribution(contribution):
     body += COMMENT_FOOTER.format(contribution_type)
 
     try:
-        # post.reply(body, author=ACCOUNT)
-        LOGGER.info(f"Replied to contribution: {contribution['url']}")
+        if not TESTING:
+            post.reply(body, author=ACCOUNT)
+            LOGGER.info(f"Replied to contribution: {contribution['url']}")
     except Exception as error:
         LOGGER.error("Something went wrong while trying to reply to the "
                      f"contribution: {contribution['url']}")
@@ -504,9 +505,10 @@ def reply_to_comment(comment):
 
     if ACCOUNT not in repliers:
         try:
-            # comment.reply(COMMENT_REVIEW.format(comment.author),
-            #               author=ACCOUNT)
-            LOGGER.info(f"Replied to comment: {comment.permlink}")
+            if not TESTING:
+                comment.reply(COMMENT_REVIEW.format(comment.author),
+                              author=ACCOUNT)
+                LOGGER.info(f"Replied to comment: {comment.permlink}")
         except Exception as error:
             LOGGER.error("Something went wrong while replying to the comment: "
                          f"{comment.permlink} - {error}")
@@ -734,9 +736,10 @@ def handle_trail(contributions, voting_power):
         try:
             voting_power -= usage
             post.vote(voting_weight, account=account)
-            # post.reply(comment, author=ACCOUNT)
-            LOGGER.info("Voted and replied to trail contribution: "
-                        f"{post.permlink}")
+            if not TESTING:
+                post.reply(comment, author=ACCOUNT)
+                LOGGER.info("Voted and replied to trail contribution: "
+                            f"{post.permlink}")
         except Exception as error:
             LOGGER.error("Something went wrong while voting and replying to "
                          f"the trail contribution: {post.permlink}")
