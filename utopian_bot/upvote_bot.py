@@ -471,6 +471,7 @@ def handle_contributions(contributions, category_share, voting_power):
     """Votes and replies to the given contribution if there is still some mana
     left in its category's share.
     """
+    used_share = []
     for contribution in contributions:
         voting_weight = contribution["voting_weight"]
         category = contribution["category"]
@@ -478,9 +479,13 @@ def handle_contributions(contributions, category_share, voting_power):
         if "task" in category:
             category = "task-request"
 
+        if category in used_share:
+            continue
+
         usage = voting_weight / 100.0 * 0.02 * voting_power
 
         if category_share[category] - usage < 0:
+            used_share.append(category)
             continue
 
         voted_on = vote_on_contribution(contribution)
@@ -620,7 +625,7 @@ def trail_contributions(trail_name):
     contributions = []
     database = DatabaseHandler.get_instance()
     trail_account = Account(trail_name)
-    day_ago = datetime.now() - timedelta(days=1)
+    two_days_ago = datetime.now() - timedelta(days=2)
     week_ago = datetime.now() - timedelta(days=7)
     number_upvoted = database.number_upvoted(trail_name, week_ago)
 
@@ -632,7 +637,8 @@ def trail_contributions(trail_name):
     upvote_limit = TRAIL_ACCOUNTS[trail_name]["upvote_limit"]
     is_priority = TRAIL_ACCOUNTS[trail_name]["is_priority"]
 
-    for vote in trail_account.history_reverse(stop=day_ago, only_ops=["vote"]):
+    for vote in trail_account.history_reverse(stop=two_days_ago,
+                                              only_ops=["vote"]):
         if number_upvoted > upvote_limit:
             break
 
@@ -735,8 +741,8 @@ def handle_trail(contributions, voting_power):
 
         try:
             comment = TRAIL_ACCOUNTS[trail_name]["comment"].format(
-                trail_name,
-                contribution["author"])
+                contribution["author"],
+                trail_name)
         except Exception:
             comment = TRAIL_ACCOUNTS[trail_name]["comment"]
 
