@@ -575,7 +575,7 @@ def init_comments(comments):
         comment_weights = update_weights(comment_weights, comment_usage)
         comment_usage = comment_voting_power(comments, comment_weights)
 
-    LOGGER.info(f"Estimed voting power usage (comments): {comment_usage:.2f}%")
+    LOGGER.info(f"Estimated voting power usage (comments): {comment_usage:.2f}%")
     return comment_weights, comment_usage
 
 
@@ -697,7 +697,7 @@ def trail_multiplier(contributions, voting_power):
         total_usage += usage
         voting_power -= usage
 
-    LOGGER.info(f"Estimed voting power usage (trail): {total_usage:.2f}%")
+    LOGGER.info(f"Estimated voting power usage (trail): {total_usage:.2f}%")
 
     if total_usage < max_usage:
         return 1.0
