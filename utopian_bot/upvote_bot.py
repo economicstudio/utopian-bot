@@ -113,7 +113,7 @@ def contribution_voting_power(contributions, voting_power, reward_scaler=None):
     """
     starting_vp = voting_power
     scaler = 1.0
-    for contribution in contributions:
+    for contribution in sorted(contributions, key=lambda x: x["score"], True):
         category = contribution["category"]
         voting_weight = contribution["voting_weight"]
 
@@ -192,7 +192,7 @@ def get_category_usage(contributions, voting_power):
     category.
     """
     category_usage = {}
-    for contribution in contributions:
+    for contribution in sorted(contributions, key=lambda x: x["score"], True):
         category = contribution["category"]
 
         if "task" in category:
@@ -472,7 +472,7 @@ def handle_contributions(contributions, category_share, voting_power):
     left in its category's share.
     """
     used_share = []
-    for contribution in contributions:
+    for contribution in sorted(contributions, key=lambda x: x["score"], True):
         voting_weight = contribution["voting_weight"]
         category = contribution["category"]
 
