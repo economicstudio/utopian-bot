@@ -94,7 +94,8 @@ def comment_voting_power(comments, comment_weights, scaling=1.0):
     currently pending review comments.
     """
     voting_power = 100.0
-    for contribution in comments:
+    for contribution in sorted(comments, key=lamba x: x["review_date"],
+                               reverse=True):
         category = contribution["category"]
         try:
             voting_weight = comment_weights[category]
@@ -547,7 +548,8 @@ def handle_comments(comments, comment_weights, voting_power):
     """Uses the pre-calculated weights to upvote and reply to all pending
     review comments.
     """
-    for comment in comments:
+    for comment in sorted(comments, key=lambda x: x["review_date"],
+                          reverse=True):
         category = comment["category"]
         contribution_url = comment["url"]
         moderator = comment["moderator"]
