@@ -436,6 +436,13 @@ def update_sheet(url, vote_successful=True, is_contribution=True):
                      f"{url} - {error}")
 
 
+def valid_age(post):
+    """Checks if post is within last twelve hours before payout."""
+    if post.time_elapsed() > timedelta(days=6, hours=12):
+        return False
+    return True
+
+
 def vote_on_contribution(contribution):
     """Tries to vote on the given contribution and updates the sheet with
     whether or not the vote was successful.
@@ -447,16 +454,20 @@ def vote_on_contribution(contribution):
     voters = [v.voter for v in post.get_votes() if v.weight > 0]
     if ACCOUNT in voters:
         update_sheet(url, vote_successful=False)
-        return
+        return False
 
     allows_curation = post.json()["allow_curation_rewards"]
     if not allows_curation:
         update_sheet(url, vote_successful=False)
-        return
+        return False
 
     if category == "translations" and not valid_translation(post):
         update_sheet(url, vote_successful=False)
-        return
+        return False
+
+    if not valid_age(post):
+        update_sheet(url, vote_successful=False)
+        return False
 
     try:
         voting_weight = contribution["voting_weight"]
