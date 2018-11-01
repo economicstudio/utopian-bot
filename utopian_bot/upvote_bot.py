@@ -108,14 +108,35 @@ def comment_voting_power(comments, comment_weights, scaling=1.0):
     return 100.0 - voting_power
 
 
+def sort_batch_contributions(contributions):
+    """Sorts the contributions so that the top contribution for each category
+    are at the front, with the remaining contributions sorted by score.
+    """
+    categories = []
+    top_each_category = []
+    for contribution in sorted(contributions, key=lambda x: x["score"],
+                               reverse=True):
+        category = contribution["category"]
+        if category in categories:
+            continue
+
+        categories.append(category)
+        top_each_category.append(contribution)
+
+    remaining_contributions = sorted(
+        [c for c in contributions if c not in top_each_category],
+        key=lambda x: x["score"], reverse=True)
+
+    return top_each_category + remaining_contributions
+
+
 def contribution_voting_power(contributions, voting_power, reward_scaler=None):
     """Returns the amount of voting power that will be used to upvote all the
     currently pending contributions.
     """
     starting_vp = voting_power
     scaler = 1.0
-    for contribution in sorted(contributions, key=lambda x: x["score"],
-                               reverse=True):
+    for contribution in sort_batch_contributions(contributions):
         category = contribution["category"]
         voting_weight = contribution["voting_weight"]
 
@@ -194,8 +215,7 @@ def get_category_usage(contributions, voting_power):
     category.
     """
     category_usage = {}
-    for contribution in sorted(contributions, key=lambda x: x["score"],
-                               reverse=True):
+    for contribution in sort_batch_contributions(contributions):
         category = contribution["category"]
 
         if "task" in category:
@@ -486,8 +506,7 @@ def handle_contributions(contributions, category_share, voting_power):
     left in its category's share.
     """
     used_share = []
-    for contribution in sorted(contributions, key=lambda x: x["score"],
-                               reverse=True):
+    for contribution in sort_batch_contributions(contributions):
         voting_weight = contribution["voting_weight"]
         category = contribution["category"]
 
