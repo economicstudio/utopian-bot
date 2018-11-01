@@ -94,7 +94,7 @@ def comment_voting_power(comments, comment_weights, scaling=1.0):
     currently pending review comments.
     """
     voting_power = 100.0
-    for contribution in sorted(comments, key=lamba x: x["review_date"],
+    for contribution in sorted(comments, key=lambda x: x["review_date"],
                                reverse=True):
         category = contribution["category"]
         try:
