@@ -108,25 +108,13 @@ def comment_voting_power(comments, comment_weights, scaling=1.0):
 
 
 def sort_batch_contributions(contributions):
-    """Sorts the contributions so that the top contribution for each category
-    are at the front, with the remaining contributions sorted by score.
+    """Returns the list of contributions sorted by creation date (old -> young)
+    and score (high -> low).
     """
-    categories = []
-    top_each_category = []
-    for contribution in sorted(contributions, key=lambda x: x["score"],
-                               reverse=True):
-        category = contribution["category"]
-        if category in categories:
-            continue
+    by_creation = sorted(contributions, key=lambda x: x["created"])
+    by_score = sorted(by_creation, key=lambda x: x["score"], reverse=True)
 
-        categories.append(category)
-        top_each_category.append(contribution)
-
-    remaining_contributions = sorted(
-        [c for c in contributions if c not in top_each_category],
-        key=lambda x: x["score"], reverse=True)
-
-    return top_each_category + remaining_contributions
+    return by_score
 
 
 def contribution_voting_power(contributions, voting_power, reward_scaler=None):
@@ -226,7 +214,6 @@ def get_category_usage(contributions, voting_power):
         vp_usage = voting_weight / 100.0 * 0.02 * voting_power
 
         category_usage[category] += vp_usage
-        voting_power -= vp_usage
 
     if LOGGING:
         category_usage_table(category_usage)
@@ -500,39 +487,15 @@ def vote_on_contribution(contribution):
     return True
 
 
-def handle_contributions(contributions, category_share, voting_power):
-    """Votes and replies to the given contribution if there is still some mana
-    left in its category's share.
-    """
-    used_share = []
-    for contribution in sort_batch_contributions(contributions):
-        voting_weight = contribution["voting_weight"]
-        category = contribution["category"]
-
-        if "task" in category:
-            category = "task-request"
-
-        if category in used_share:
-            continue
-
-        usage = voting_weight / 100.0 * 0.02 * voting_power
-
-        if category_share[category] - usage < 0:
-            used_share.append(category)
-            continue
-
+def handle_contributions(contributions):
+    """Votes and replies to the given contributions."""
+    for contribution in contributions:
         voted_on = vote_on_contribution(contribution)
         if voted_on:
             reply_to_contribution(contribution)
             update_sheet(contribution["url"])
 
-        category_share[category] -= usage
-        voting_power -= usage
-
         time.sleep(3)
-
-    LOGGER.info(f"Voting power after contributions: {voting_power:.2f}%")
-    return voting_power
 
 
 def reply_to_comment(comment):
@@ -581,6 +544,7 @@ def handle_comments(comments, comment_weights, voting_power):
         category = comment["category"]
         if "task" in category:
             category = "task-request"
+
         contribution_url = comment["url"]
         moderator = comment["moderator"]
         comment_url = comment["comment_url"]
@@ -617,6 +581,37 @@ def init_comments(comments):
 
     LOGGER.info(f"Estimated voting power usage (comments): {comment_usage:.2f}%")
     return comment_weights, comment_usage
+
+
+def get_batch(contributions, category_share, voting_power):
+    """Returns the batch of contributions that will be voted on in the next
+    voting round.
+    """
+    used_share = []
+    batch = []
+
+    for contribution in sort_batch_contributions(contributions):
+        voting_weight = contribution["voting_weight"]
+        category = contribution["category"]
+
+        if "task" in category:
+            category = "task-request"
+
+        if category in used_share:
+            continue
+
+        usage = voting_weight / 100.0 * 0.02 * voting_power
+
+        if category_share[category] - usage < 0:
+            used_share.append(category)
+            continue
+
+        category_share[category] -= usage
+        voting_power -= usage
+        batch.append(contribution)
+
+    LOGGER.info(f"Voting power after contributions: {voting_power:.2f}%")
+    return voting_power, batch
 
 
 def init_contributions(contributions, comment_usage):
@@ -823,13 +818,13 @@ def main():
     comments = requests.get(COMMENT_BATCH).json()
     comment_weights, comment_usage = init_comments(comments)
 
-    contributions = sorted(requests.get(CONTRIBUTION_BATCH).json(),
-                           key=lambda x: x["score"], reverse=True)
+    contributions = requests.get(CONTRIBUTION_BATCH).json()
     category_share = init_contributions(contributions, comment_usage)
 
     voting_power = handle_comments(comments, comment_weights, voting_power)
-    voting_power = handle_contributions(contributions, category_share,
-                                        voting_power)
+    voting_power, contributions = get_batch(contributions, category_share,
+                                            voting_power)
+    handle_contributions(contributions)
 
     trail_contributions = init_trail()
     handle_trail(trail_contributions, voting_power)
