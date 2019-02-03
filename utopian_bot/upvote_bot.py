@@ -681,6 +681,10 @@ def trail_contributions(trail_name):
             continue
 
         contribution = Comment(f"@{vote['author']}/{vote['permlink']}")
+
+        if contribution.is_comment():
+            continue
+
         voters = [v.voter for v in contribution.get_votes() if v.weight > 0]
 
         if ACCOUNT in voters:
