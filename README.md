@@ -11,7 +11,7 @@ Once Python is installed you can install the required packages in your virtual e
 ```bash
 $ python -m venv venv
 $ . venv/bin/active
-$ (venv) pip install -r requirementx.txt
+$ (venv) pip install -r requirements.txt
 ```
 
 If you encounter any problems while installing the Python packages you might be missing some other required packages. On Ubuntu you can solve this by installing the following packages
